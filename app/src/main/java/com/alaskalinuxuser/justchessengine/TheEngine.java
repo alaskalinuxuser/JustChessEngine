@@ -29,6 +29,7 @@ public class TheEngine {
         for (int i = 0; i < 64; i++) {
             switch (theBoard[i]) {
                 case 'N': list+=nightMoves(i);break;
+                case 'R': list+=rookMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -115,10 +116,74 @@ public class TheEngine {
         return list;
     } // End knight moves.
 
+    public static String rookMoves(int i) {
+        String list = "";
+        List<Integer> theseMoves = new ArrayList<Integer>();
+        String moveSquare;
+        int g = i%8;
+        int h = 7-g;
+        // Up and down....
+        for (int j=-1; j<=1; j+=2) {
+            int vert = 8;
+            int k = i + (vert * j);
+            while (theBoard[k] == '*') {
+                theseMoves.add(k);
+                vert += 8;
+                k = i + (vert * j);
+            } // While it's empty.
+            if (Character.isLowerCase(theBoard[k])) {
+                theseMoves.add(k);
+            } // When there is an enemy.
+        }// end up and down.
+        // Right side....
+        int rj = 1;
+        int rk = i + rj;
+        while (theBoard[rk] == '*' && rj<=h) {
+            theseMoves.add(rk);
+            rj++;
+            rk = i + rj;
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[rk])) {
+            theseMoves.add(rk);
+        } // When there is an enemy.
+        // Left side....
+        rj = 1;
+        rk = i - rj;
+        while (theBoard[rk] == '*' && rj<=g) {
+            theseMoves.add(rk);
+            rj++;
+            rk = i - rj;
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[rk])) {
+            theseMoves.add(rk);
+        } // When there is an enemy.
+
+        for(int l=0; l<theseMoves.size();l++) {
+            int k = theseMoves.get(l);
+            moveSquare = String.valueOf(theBoard[k]);
+            theBoard[k] = 'R';
+            theBoard[i] = moveSquare.charAt(0);
+            if (isKingSafe()) {
+                String F = String.valueOf(i);
+                String T = String.valueOf(k);
+                if (i < 10) {
+                    F = "0" + F;
+                }
+                if (k < 10) {
+                    T = "0" + T;
+                }
+                list = list + "R" + F + T + moveSquare.charAt(0) + ",";
+            }
+            theBoard[k] = moveSquare.charAt(0);
+            theBoard[i] = 'R';
+        }
+        return list;
+    } // End Rook moves.
+
     public static boolean isKingSafe() {
 
         return true;
-        
+
     } // End is king safe?
 
 } // End The engine.
