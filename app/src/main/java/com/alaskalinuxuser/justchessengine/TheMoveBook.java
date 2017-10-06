@@ -15,26 +15,6 @@ package com.alaskalinuxuser.justchessengine;
 *   limitations under the License.
 */
 
-import android.util.Log;
-
-import static com.alaskalinuxuser.justchessengine.MainActivity.theBoard;
-
-public class TheEngine {
-
-    public static String allMoves() {
-        String list = "";
-        for (int i = 0; i < 64; i++) {
-            switch (theBoard[i]) {
-                case 'N': list+=nightMoves(i);break;
-            }
-        }
-        Log.i("WJH", list);
-        return list;//x1,x2,captured piece
-    } // End possible moves.
-
-    public static String nightMoves(int i) {
-        String list="";
-        return list;
-    } // End night moves.
+public class TheMoveBook {
 
 }

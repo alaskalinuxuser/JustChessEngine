@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
+
 public class MainActivity extends AppCompatActivity {
 
     static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
         Log.i("WJH", logBoard.substring(8,15));
         Log.i("WJH", logBoard.substring(0,7));
         Log.i("WJH", logBoard);
+
+        allMoves();
+
     }// End on create.
 
     @Override
