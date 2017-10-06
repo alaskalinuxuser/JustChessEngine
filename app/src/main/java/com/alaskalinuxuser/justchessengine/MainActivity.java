@@ -20,11 +20,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+
+    static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
+            '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
+            '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +46,29 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-    }
+
+        // Display the board in the logs....
+        String logBoard="";
+        for(int i = 0 ; i < 64; i++) {
+            logBoard = logBoard + theBoard[i];
+        }
+        Log.i("WJH", logBoard.substring(56,63));
+        Log.i("WJH", logBoard.substring(48,55));
+        Log.i("WJH", logBoard.substring(40,47));
+        Log.i("WJH", logBoard.substring(32,39));
+        Log.i("WJH", logBoard.substring(24,31));
+        Log.i("WJH", logBoard.substring(16,23));
+        Log.i("WJH", logBoard.substring(8,15));
+        Log.i("WJH", logBoard.substring(0,7));
+        Log.i("WJH", logBoard);
+    }// End on create.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
+    } // End on create options menu.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -63,5 +83,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-}
+    } // End on options selected menu.
+} // End Main Activity.
