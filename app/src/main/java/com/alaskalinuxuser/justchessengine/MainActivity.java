@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
+import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
@@ -122,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
         //Log.i("WJH", logBoard.substring(8,15));
         //Log.i("WJH", logBoard.substring(0,7));
         // To log the whole board as one long string // Log.i("WJH", logBoard);
+
+        //Start a new game.
+        newGame();
 
         // Visually Draw the board....
         drawBoardPieces();

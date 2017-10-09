@@ -24,6 +24,16 @@ import static com.alaskalinuxuser.justchessengine.MainActivity.theBoard;
 
 public class TheEngine {
 
+    static boolean wKingNeverMove, wKRNeverMove,wQRNeverMove, bKingNeverMove,bKRNeverMove,bQRNeverMove;
+    static int whiteKing, blackKing;
+
+    public static boolean newGame() {
+        // Temporary spot for this king movement status for castle.
+        wKingNeverMove=true;wKRNeverMove=true;wQRNeverMove=true;
+        bKingNeverMove=true;bKRNeverMove=true;bQRNeverMove=true;
+    return true;
+    }
+
     public static String allMoves() {
         String list = "";
         for (int i = 0; i < 64; i++) {
@@ -32,6 +42,7 @@ public class TheEngine {
                 case 'R': list+=rookMoves(i);break;
                 case 'B': list+=bishopMoves(i);break;
                 case 'Q': list+=queenMoves(i);break;
+                case 'K': list+=kingMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -534,6 +545,29 @@ public class TheEngine {
                 theseMoves.add(i-1);}}
 
         // Need castle moves //
+
+        if (wKingNeverMove && isKingSafe()) {
+            if (wKRNeverMove && theBoard[5] == '*' && theBoard[6] == '*') {
+                whiteKing = 5;
+                if (isKingSafe()) {
+                    whiteKing = 6;
+                    if (isKingSafe()) {
+                        list = list + "K-0-0R,";
+                    } else { whiteKing = 4; }
+                } else { whiteKing = 4; }
+            }
+            if (wQRNeverMove && theBoard[1] == '*' && theBoard[2] == '*' && theBoard[3] == '*') {
+                whiteKing = 3;
+                if (isKingSafe()) {
+                    whiteKing = 2;
+                    if (isKingSafe()) {
+                        list = list + "K0-0-0,";
+                    } else { whiteKing = 4; }
+                } else { whiteKing = 4; }
+            }
+        }
+
+        // Castle moves //
 
         int k;
         for(int l=0; l<theseMoves.size();l++) {
