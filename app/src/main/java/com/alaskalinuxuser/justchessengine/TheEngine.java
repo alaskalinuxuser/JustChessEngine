@@ -30,6 +30,7 @@ public class TheEngine {
             switch (theBoard[i]) {
                 case 'N': list+=nightMoves(i);break;
                 case 'R': list+=rookMoves(i);break;
+                case 'B': list+=bishopMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -218,6 +219,104 @@ public class TheEngine {
         }
         return list;
     } // End Rook moves.
+
+    public static String bishopMoves (int i) {
+        String list = "";
+        List<Integer> theseMoves = new ArrayList<Integer>();
+        String moveSquare;
+        boolean notI=true;
+        int e = i/8;
+        int f = i%8;
+
+        int k;
+        if (e < 7) {
+            // Up diagonal moves.
+            if (f < 7) {
+                k = i + 9;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k/8 < 7 && k%8 < 7) {
+                        k = k + 9;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+            notI = true;
+            if (f > 0) {
+                k = i + 7;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 > 0 && k/8 < 7) {
+                        k = k + 7;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+        }
+
+        if (e > 0) {
+            // down diagonal moves.
+            notI = true;
+            if (f > 0) {
+                k = i - 9;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 > 0 && k/8 > 0) {
+                        k = k - 9;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+            notI = true;
+            if (f < 7) {
+                k = i - 7;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 < 7 && k/8 > 0) {
+                        k = k - 7;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+        }
+
+        for(int l=0; l<theseMoves.size();l++) {
+            k = theseMoves.get(l);
+            moveSquare = String.valueOf(theBoard[k]);
+            theBoard[k] = 'B';
+            theBoard[i] = moveSquare.charAt(0);
+            if (isKingSafe()) {
+                String F = String.valueOf(i);
+                String T = String.valueOf(k);
+                if (i < 10) {
+                    F = "0" + F;
+                }
+                if (k < 10) {
+                    T = "0" + T;
+                }
+                list = list + "B" + F + T + moveSquare.charAt(0) + ",";
+            }
+            theBoard[k] = moveSquare.charAt(0);
+            theBoard[i] = 'B';
+        }
+        return list;
+    } // End Bishop moves.
 
     public static boolean isKingSafe() {
 
