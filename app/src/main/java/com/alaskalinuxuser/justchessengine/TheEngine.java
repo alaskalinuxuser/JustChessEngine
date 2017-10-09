@@ -31,6 +31,7 @@ public class TheEngine {
                 case 'N': list+=nightMoves(i);break;
                 case 'R': list+=rookMoves(i);break;
                 case 'B': list+=bishopMoves(i);break;
+                case 'Q': list+=queenMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -317,6 +318,189 @@ public class TheEngine {
         }
         return list;
     } // End Bishop moves.
+
+    public static String queenMoves (int i) {
+        // Combined Bishop and Rook set. I could have just called them as is, but then they would
+        // be stamped, B and R, instead of Q.
+        String list = "";
+        List<Integer> theseMoves = new ArrayList<Integer>();
+        String moveSquare;
+        int g = i%8;
+
+        // Up moves
+        boolean notI = true;
+        int j = 1;
+        int vert = 8;
+        int k = i;
+        if (i < 56) {
+            k = i + (vert * j);
+        }
+        while (theBoard[k] == '*' && notI) {
+            theseMoves.add(k);
+            vert += 8;
+            if (k < 56) {
+                k = i + (vert * j);
+            } else {
+                notI = false;
+            }
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[k])) {
+            theseMoves.add(k);
+        } // When there is an enemy.
+
+        // Down moves
+        notI = true;
+        j = -1;
+        vert = 8;
+        k = i;
+        if (i > 7) {
+            k = i + (vert * j);
+        }
+        while (theBoard[k] == '*' && notI) {
+            theseMoves.add(k);
+            vert += 8;
+            if (k >7) {
+                k = i + (vert * j);
+            } else {
+                notI = false;
+            }
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[k])) {
+            theseMoves.add(k);
+        } // When there is an enemy.
+
+        // Right side....
+        notI = true;
+        int rj = 1;
+        int rk = i;
+        if (g < 7) {
+            rk = i + rj;
+        }
+        while (theBoard[rk] == '*' && notI) {
+            theseMoves.add(rk);
+            rj++;
+            if (rk%8 < 7) {
+                rk = i + rj;
+            } else {
+                notI = false;
+            }
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[rk])) {
+            theseMoves.add(rk);
+        } // When there is an enemy.
+
+        // Left side....
+        notI=true;
+        rj = 1;
+        rk = i;
+        if (g > 0) {
+            rk = i - rj;
+        }
+        while (theBoard[rk] == '*' && notI) {
+            theseMoves.add(rk);
+            rj++;
+            if (rk%8 > 0) {
+                rk = i - rj;
+            } else {
+                notI=false;
+            }
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[rk])) {
+            theseMoves.add(rk);
+        } // When there is an enemy.
+
+        notI=true;
+        int e = i/8;
+        int f = i%8;
+
+        if (e < 7) {
+            // Up diagonal moves.
+            if (f < 7) {
+                k = i + 9;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k/8 < 7 && k%8 < 7) {
+                        k = k + 9;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+            notI = true;
+            if (f > 0) {
+                k = i + 7;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 > 0 && k/8 < 7) {
+                        k = k + 7;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+        }
+
+        if (e > 0) {
+            // down diagonal moves.
+            notI = true;
+            if (f > 0) {
+                k = i - 9;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 > 0 && k/8 > 0) {
+                        k = k - 9;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+            notI = true;
+            if (f < 7) {
+                k = i - 7;
+                while (theBoard[k] == '*' && notI) {
+                    theseMoves.add(k);
+                    if (k%8 < 7 && k/8 > 0) {
+                        k = k - 7;
+                    } else {
+                        notI = false;
+                    }
+                } // While it's empty.
+                if (Character.isLowerCase(theBoard[k])) {
+                    theseMoves.add(k);
+                } // When there is an enemy.
+            }
+        }
+
+        for(int l=0; l<theseMoves.size();l++) {
+            k = theseMoves.get(l);
+            moveSquare = String.valueOf(theBoard[k]);
+            theBoard[k] = 'Q';
+            theBoard[i] = moveSquare.charAt(0);
+            if (isKingSafe()) {
+                String F = String.valueOf(i);
+                String T = String.valueOf(k);
+                if (i < 10) {
+                    F = "0" + F;
+                }
+                if (k < 10) {
+                    T = "0" + T;
+                }
+                list = list + "Q" + F + T + moveSquare.charAt(0) + ",";
+            }
+            theBoard[k] = moveSquare.charAt(0);
+            theBoard[i] = 'Q';
+        }
+        return list;
+    } // End Queen moves.
 
     public static boolean isKingSafe() {
 
