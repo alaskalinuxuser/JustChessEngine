@@ -29,7 +29,7 @@ public class TheEngine {
         for (int i = 0; i < 64; i++) {
             switch (theBoard[i]) {
                 case 'N': list+=nightMoves(i);break;
-                //case 'R': list+=rookMoves(i);break;
+                case 'R': list+=rookMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -118,11 +118,19 @@ public class TheEngine {
         // Up and down....
         for (int j=-1; j<=1; j+=2) {
             int vert = 8;
-            int k = i + (vert * j);
+            int k = i;
+            if (i < 56 && i > 7) {
+                k = i + (vert * j);
+            }
             while (theBoard[k] == '*') {
+                Log.i("WJH", String.valueOf(k));
                 theseMoves.add(k);
                 vert += 8;
-                k = i + (vert * j);
+                if (k < 56 && k > 7) {
+                    k = i + (vert * j);
+                } else {
+                    k = i;
+                }
             } // While it's empty.
             if (Character.isLowerCase(theBoard[k])) {
                 theseMoves.add(k);
@@ -130,22 +138,38 @@ public class TheEngine {
         }// end up and down.
         // Right side....
         int rj = 1;
-        int rk = i + rj;
+        int rk = i;
+        if (h < 8) {
+            rk = i + rj;
+        }
+        Log.i("WJH", String.valueOf(rk) + " plus");
         while (theBoard[rk] == '*' && rj<=h) {
             theseMoves.add(rk);
             rj++;
-            rk = i + rj;
+            if (rk < 8) {
+                rk = i + rj;
+            } else {
+                rk = i;
+            }
         } // While it's empty.
         if (Character.isLowerCase(theBoard[rk])) {
             theseMoves.add(rk);
         } // When there is an enemy.
         // Left side....
         rj = 1;
-        rk = i - rj;
+        rk = i;
+        if (g > 0) {
+            rk = i - rj;
+        }
+        Log.i("WJH", String.valueOf(rk) + " minus");
         while (theBoard[rk] == '*' && rj<=g) {
             theseMoves.add(rk);
             rj++;
-            rk = i - rj;
+            if (rk > 0) {
+                rk = i - rj;
+            } else {
+                rk = i;
+            }
         } // While it's empty.
         if (Character.isLowerCase(theBoard[rk])) {
             theseMoves.add(rk);
