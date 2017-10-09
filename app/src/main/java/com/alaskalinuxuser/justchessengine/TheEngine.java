@@ -114,61 +114,83 @@ public class TheEngine {
         List<Integer> theseMoves = new ArrayList<Integer>();
         String moveSquare;
         int g = i%8;
-        int h = 7-g;
-        // Up and down....
-        for (int j=-1; j<=1; j+=2) {
-            int vert = 8;
-            int k = i;
-            if (i < 56 && i > 7) {
+
+        // Up moves
+        boolean notI = true;
+        int j = 1;
+        int vert = 8;
+        int k = i;
+        if (i < 56) {
+            k = i + (vert * j);
+        }
+        while (theBoard[k] == '*' && notI) {
+            theseMoves.add(k);
+            vert += 8;
+            if (k < 56) {
                 k = i + (vert * j);
+            } else {
+                notI = false;
             }
-            while (theBoard[k] == '*') {
-                Log.i("WJH", String.valueOf(k));
-                theseMoves.add(k);
-                vert += 8;
-                if (k < 56 && k > 7) {
-                    k = i + (vert * j);
-                } else {
-                    k = i;
-                }
-            } // While it's empty.
-            if (Character.isLowerCase(theBoard[k])) {
-                theseMoves.add(k);
-            } // When there is an enemy.
-        }// end up and down.
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[k])) {
+            theseMoves.add(k);
+        } // When there is an enemy.
+
+        // Down moves
+        notI = true;
+        j = -1;
+        vert = 8;
+        k = i;
+        if (i > 7) {
+            k = i + (vert * j);
+        }
+        while (theBoard[k] == '*' && notI) {
+            theseMoves.add(k);
+            vert += 8;
+            if (k >7) {
+                k = i + (vert * j);
+            } else {
+                notI = false;
+            }
+        } // While it's empty.
+        if (Character.isLowerCase(theBoard[k])) {
+            theseMoves.add(k);
+        } // When there is an enemy.
+
         // Right side....
+        notI = true;
         int rj = 1;
         int rk = i;
-        if (h < 8) {
+        if (g < 7) {
             rk = i + rj;
         }
-        Log.i("WJH", String.valueOf(rk) + " plus");
-        while (theBoard[rk] == '*' && rj<=h) {
+        while (theBoard[rk] == '*' && notI) {
             theseMoves.add(rk);
             rj++;
-            if (rk < 8) {
+            if (rk%8 < 7) {
                 rk = i + rj;
             } else {
-                rk = i;
+                notI = false;
             }
         } // While it's empty.
         if (Character.isLowerCase(theBoard[rk])) {
             theseMoves.add(rk);
         } // When there is an enemy.
+
         // Left side....
+        notI=true;
         rj = 1;
         rk = i;
         if (g > 0) {
             rk = i - rj;
         }
-        Log.i("WJH", String.valueOf(rk) + " minus");
-        while (theBoard[rk] == '*' && rj<=g) {
+        while (theBoard[rk] == '*' && notI) {
             theseMoves.add(rk);
             rj++;
-            if (rk > 0) {
+            if (rk%8 > 0) {
                 rk = i - rj;
             } else {
-                rk = i;
+                notI=false;
             }
         } // While it's empty.
         if (Character.isLowerCase(theBoard[rk])) {
@@ -176,7 +198,7 @@ public class TheEngine {
         } // When there is an enemy.
 
         for(int l=0; l<theseMoves.size();l++) {
-            int k = theseMoves.get(l);
+            k = theseMoves.get(l);
             moveSquare = String.valueOf(theBoard[k]);
             theBoard[k] = 'R';
             theBoard[i] = moveSquare.charAt(0);
