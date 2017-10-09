@@ -502,6 +502,62 @@ public class TheEngine {
         return list;
     } // End Queen moves.
 
+    public static String kingMoves (int i) {
+        String list = "";
+        List<Integer> theseMoves = new ArrayList<Integer>();
+        String moveSquare;
+        int g = i%8;
+        int h = i/8;
+        if (h > 0) {
+            if (theBoard[i-8] == '*' || Character.isLowerCase(theBoard[i-8])) {
+                theseMoves.add(i-8);}
+            if (g > 0) {
+                if (theBoard[i-9] == '*' || Character.isLowerCase(theBoard[i-9])) {
+                    theseMoves.add(i-9);}}
+            if (g < 7) {
+                if (theBoard[i-7] == '*' || Character.isLowerCase(theBoard[i-7])) {
+                    theseMoves.add(i-7);}}}
+        if (h < 7) {
+            if (theBoard[i+8] == '*' || Character.isLowerCase(theBoard[i+8])) {
+                theseMoves.add(i+8);}
+            if (g < 7) {
+                if (theBoard[i+9] == '*' || Character.isLowerCase(theBoard[i+9])) {
+                    theseMoves.add(i+9);}}
+            if (g > 0) {
+                if (theBoard[i+7] == '*' || Character.isLowerCase(theBoard[i+7])) {
+                    theseMoves.add(i+7);}}}
+        if (g < 7) {
+            if (theBoard[i+1] == '*' || Character.isLowerCase(theBoard[i+1])) {
+                theseMoves.add(i+1);}}
+        if (g > 0) {
+            if (theBoard[i-1] == '*' || Character.isLowerCase(theBoard[i-1])) {
+                theseMoves.add(i-1);}}
+
+        // Need castle moves //
+
+        int k;
+        for(int l=0; l<theseMoves.size();l++) {
+            k = theseMoves.get(l);
+            moveSquare = String.valueOf(theBoard[k]);
+            theBoard[k] = 'K';
+            theBoard[i] = moveSquare.charAt(0);
+            if (isKingSafe()) {
+                String F = String.valueOf(i);
+                String T = String.valueOf(k);
+                if (i < 10) {
+                    F = "0" + F;
+                }
+                if (k < 10) {
+                    T = "0" + T;
+                }
+                list = list + "K" + F + T + moveSquare.charAt(0) + ",";
+            }
+            theBoard[k] = moveSquare.charAt(0);
+            theBoard[i] = 'K';
+        }
+        return list;
+    } // End King moves.
+
     public static boolean isKingSafe() {
 
         return true;
