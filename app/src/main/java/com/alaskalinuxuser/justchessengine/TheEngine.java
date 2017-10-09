@@ -29,7 +29,7 @@ public class TheEngine {
         for (int i = 0; i < 64; i++) {
             switch (theBoard[i]) {
                 case 'N': list+=nightMoves(i);break;
-                case 'R': list+=rookMoves(i);break;
+                //case 'R': list+=rookMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -48,50 +48,43 @@ public class TheEngine {
         String list = "";
         List<Integer> theseMoves = new ArrayList<Integer>();
         String moveSquare;
-        if (i<56) {
-            if (i != 0 && i != 1 && i != 8 && i != 9 && i != 16 && i != 17 && i != 24 && i != 25 &&
-                    i != 32 && i != 33 && i != 40 && i != 41 && i != 48 && i != 49) {
+
+        int rowNum = i/8;
+        int colNum = i%8;
+
+        if (rowNum < 7 ) {
+            if (colNum > 1) {
                 theseMoves.add(i + 6);
             }
-        }
-        if (i<54) {
-            if (i != 6 && i != 7 && i != 14 && i != 15 && i != 22 && i != 23 && i != 30 &&
-                    i != 31 && i != 38 && i != 39 && i != 46 && i != 47) {
+            if (colNum < 6) {
                 theseMoves.add(i+10);
             }
         }
-        if (i<48) {
-            if (i != 0 && i != 8 && i != 16 && i != 24 && i != 32 && i != 40) {
-                theseMoves.add(i+15);
+        if (rowNum < 6 ) {
+            if (colNum > 0) {
+                theseMoves.add(i + 15);
             }
-        }
-        if (i<47) {
-            if (i != 7 && i != 15 && i != 23 && i != 31 && i != 39) {
+            if (colNum < 7) {
                 theseMoves.add(i+17);
             }
         }
-        if (i>7) {
-            if (i != 14 && i != 15 && i != 22 && i != 23 && i != 30 && i != 31 && i != 38 &&
-                    i != 39 && i != 46 && i != 47 &&  i != 54 && i != 55 &&  i != 62 && i != 63) {
-                theseMoves.add(i-6);
+        if (rowNum > 0 ) {
+            if (colNum < 6) {
+                theseMoves.add(i - 6);
             }
-        }
-        if (i>9) {
-            if (i != 16 && i != 17 && i != 24 && i != 25 && i != 32 && i != 33 &&
-                    i != 40 && i != 41 && i != 48 && i != 49 && i != 56 && i != 57) {
+            if (colNum > 1) {
                 theseMoves.add(i-10);
             }
         }
-        if (i>15) {
-            if (i != 47 && i != 55 && i != 63 && i != 23 && i != 31 && i != 39)  {
-                theseMoves.add(i-15);
+        if (rowNum > 1 ) {
+            if (colNum < 7) {
+                theseMoves.add(i - 15);
             }
-        }
-        if (i>16) {
-            if (i != 48 && i != 56 && i != 24 && i != 32 && i != 40) {
+            if (colNum > 0) {
                 theseMoves.add(i-17);
             }
         }
+
         for(int l=0; l<theseMoves.size();l++) {
             int k = theseMoves.get(l);
             if (Character.isLowerCase(theBoard[k]) || theBoard[k] == '*') {
