@@ -20,17 +20,24 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alaskalinuxuser.justchessengine.MainActivity.theBoard;
-
 public class TheEngine {
 
-    static boolean wKingNeverMove, wKRNeverMove,wQRNeverMove, bKingNeverMove,bKRNeverMove,bQRNeverMove;
+    static boolean wKingNeverMove, wKRNeverMove,wQRNeverMove,
+            bKingNeverMove,bKRNeverMove,bQRNeverMove, whiteTurn;
     static int whiteKing, blackKing;
+
+    static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
+            '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
+            '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
 
     public static boolean newGame() {
         // Temporary spot for this king movement status for castle.
         wKingNeverMove=true;wKRNeverMove=true;wQRNeverMove=true;
         bKingNeverMove=true;bKRNeverMove=true;bQRNeverMove=true;
+        whiteTurn=true;
+        theBoard = new char[]{'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
+            '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
+            '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
     return true;
     }
 

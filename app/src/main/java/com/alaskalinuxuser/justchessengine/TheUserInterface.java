@@ -16,7 +16,7 @@ package com.alaskalinuxuser.justchessengine;
 */
 
 import static com.alaskalinuxuser.justchessengine.MainActivity.chessImage;
-import static com.alaskalinuxuser.justchessengine.MainActivity.theBoard;
+import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 
 public class TheUserInterface {
 

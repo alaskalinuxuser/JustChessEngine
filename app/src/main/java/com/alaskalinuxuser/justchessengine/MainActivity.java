@@ -30,13 +30,10 @@ import android.widget.TextView;
 
 import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
 import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
+import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
-
-    static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
-            '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
-            '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
 
     static ImageView x63,x62,x61,x60,x59,x58,x57,x56,x55,x54,x53,x52,x51,x50,x49,x48,x47,x46,x45,
             x44,x43,x42,x41,x40,x39,x38,x37,x36,x35,x34,x33,x32,x31,x30,x29,x28,x27,x26,x25,x24,
@@ -107,25 +104,14 @@ public class MainActivity extends AppCompatActivity {
             }
         } // checker board.
 
+        //Start a new game.
+        newGame();
 
         // Display the board in the logs....
         String logBoard="";
         for(int i = 0 ; i < 64; i++) {
             logBoard = logBoard + theBoard[i];
         }
-        // Display the board as small strings //
-        //Log.i("WJH", logBoard.substring(56,63));
-        //Log.i("WJH", logBoard.substring(48,55));
-        //Log.i("WJH", logBoard.substring(40,47));
-        //Log.i("WJH", logBoard.substring(32,39));
-        //Log.i("WJH", logBoard.substring(24,31));
-        //Log.i("WJH", logBoard.substring(16,23));
-        //Log.i("WJH", logBoard.substring(8,15));
-        //Log.i("WJH", logBoard.substring(0,7));
-        // To log the whole board as one long string // Log.i("WJH", logBoard);
-
-        //Start a new game.
-        newGame();
 
         // Visually Draw the board....
         drawBoardPieces();
