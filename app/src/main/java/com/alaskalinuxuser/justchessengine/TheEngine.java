@@ -25,6 +25,7 @@ public class TheEngine {
     static boolean wKingNeverMove, wKRNeverMove,wQRNeverMove,
             bKingNeverMove,bKRNeverMove,bQRNeverMove, whiteTurn;
     static int whiteKing, blackKing;
+    static String promoteToW = "Q", getPromoteToB = "q", lastMove = "xxxxxx";
 
     static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
             '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
@@ -50,6 +51,7 @@ public class TheEngine {
                 case 'B': list+=bishopMoves(i);break;
                 case 'Q': list+=queenMoves(i);break;
                 case 'K': list+=kingMoves(i);break;
+                case 'P': list+=pawnMoves(i);break;
             }
         }
         Log.i("WJH", list);
@@ -598,6 +600,107 @@ public class TheEngine {
         }
         return list;
     } // End King moves.
+
+    public static String pawnMoves (int i) {
+        String list = "";
+        List<Integer> theseMoves = new ArrayList<Integer>();
+        String moveSquare;
+        int g = i%8;
+        int h = i/8;
+
+        int k = i + 8, j = i + 16;
+        if (h == 1) {
+            if (theBoard[k] == '*' && theBoard[j] == '*') {
+                // The double step from the home row.
+                theseMoves.add(j);}
+        } else if (h == 4) {
+            // The rule of en passant...
+            if (lastMove.charAt(0)=='p') {
+                int tempTo = Integer.parseInt(lastMove.substring(3,5));
+                int tempFm = Integer.parseInt(lastMove.substring(1,3));
+                if (tempFm / 8 == 6 && tempTo / 8 == 4) { // The did a double step.
+                    if (tempTo == i + 1) { // They are on your right.
+                        moveSquare = String.valueOf(theBoard[i+9]);
+                        theBoard[i+9] = 'P';
+                        theBoard[i] = moveSquare.charAt(0);
+                        if (isKingSafe()) {
+                            list = list + "PEN" + String.valueOf(i + 9) + "p,";}
+                        theBoard[i+9] = moveSquare.charAt(0);
+                        theBoard[i] = 'P';
+                    } else if (tempTo == i - 1) { // They are on your left.
+                        moveSquare = String.valueOf(theBoard[i+7]);
+                        theBoard[i+7] = 'P';
+                        theBoard[i] = moveSquare.charAt(0);
+                        if (isKingSafe()) {
+                            list = list + "PEN" + String.valueOf(i + 7) + "p,";}
+                        theBoard[i+7] = moveSquare.charAt(0);
+                        theBoard[i] = 'P';
+                    }}} // End en passant....
+        } else if (h == 6) {
+            // The standard catch for moving one space forward.
+            k = i + 8;
+            if (theBoard[k] == '*') {
+                moveSquare = String.valueOf(theBoard[k]);
+                theBoard[k] = 'P';
+                theBoard[i] = moveSquare.charAt(0);
+                if (isKingSafe()) {
+                    list = list + "P" + "u" + promoteToW + k + moveSquare.charAt(0) + ",";}
+                theBoard[k] = moveSquare.charAt(0);
+                theBoard[i] = 'P';}
+            k = i + 7;// Attacking to the left and up.
+            if (g > 0 && Character.isLowerCase(theBoard[k])) {
+                moveSquare = String.valueOf(theBoard[k]);
+                theBoard[k] = 'P';
+                theBoard[i] = moveSquare.charAt(0);
+                if (isKingSafe()) {
+                    list = list + "P" + "l" + promoteToW + k + moveSquare.charAt(0) + ",";}
+                theBoard[k] = moveSquare.charAt(0);
+                theBoard[i] = 'P';}
+            k = i + 9;// Attacking to the right and up.
+            if (g < 7 && Character.isLowerCase(theBoard[k])) {
+                moveSquare = String.valueOf(theBoard[k]);
+                theBoard[k] = 'P';
+                theBoard[i] = moveSquare.charAt(0);
+                if (isKingSafe()) {
+                    list = list + "P" + "r" + promoteToW + k + moveSquare.charAt(0) + ",";}
+                theBoard[k] = moveSquare.charAt(0);
+                theBoard[i] = 'P';} // End Promotions.
+        } // End special pawn moves.
+
+        if (h > 0 && h < 6) {
+            // The standard catch for moving one space forward.
+            k = i + 8;
+            if (theBoard[k] == '*') {
+                theseMoves.add(k);}
+            k = i + 7;// Attacking to the left and up.
+            if (g > 0 && Character.isLowerCase(theBoard[k])) {
+                theseMoves.add(k);}
+            k = i + 9;// Attacking to the right and up.
+            if (g < 7 && Character.isLowerCase(theBoard[k])) {
+                theseMoves.add(k);}
+        } // End boring pawn moves.
+
+        for(int l=0; l<theseMoves.size();l++) {
+            k = theseMoves.get(l);
+            moveSquare = String.valueOf(theBoard[k]);
+            theBoard[k] = 'P';
+            theBoard[i] = moveSquare.charAt(0);
+            if (isKingSafe()) {
+                String F = String.valueOf(i);
+                String T = String.valueOf(k);
+                if (i < 10) {
+                    F = "0" + F;
+                }
+                if (k < 10) {
+                    T = "0" + T;
+                }
+                list = list + "P" + F + T + moveSquare.charAt(0) + ",";
+            }
+            theBoard[k] = moveSquare.charAt(0);
+            theBoard[i] = 'P';
+        }
+        return list;
+    } // End pawn moves.
 
     public static boolean isKingSafe() {
 
