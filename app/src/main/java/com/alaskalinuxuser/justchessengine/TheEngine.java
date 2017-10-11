@@ -44,6 +44,157 @@ public class TheEngine {
     return true;
     } // End New game.
 
+    public static void makeMove(String move) {
+        /*
+         * In theory, if there are no moves, then you are in checkmate or stalemate....
+         */
+        lastMove = move;
+        boolean checkStaleMate = false;
+        int to,from,other;
+        String promote = move.substring(2);
+        if (whiteTurn) { // White's turn moves....
+            if (move.length() < 6 || move.charAt(0) == '-') {
+                Log.i("WJH", "Checkmate or stalemate.");
+                checkStaleMate = true;
+            }
+            if ("K-0-0R,".equals(move)) {
+                theBoard[7] = '*';
+                theBoard[6] = 'K';
+                theBoard[5] = 'R';
+                theBoard[4] = '*';
+            } else if ("K0-0-0,".equals(move)) {
+                theBoard[4] = '*';
+                theBoard[1] = '*';
+                theBoard[2] = 'K';
+                theBoard[3] = 'R';
+                theBoard[0] = '*';
+            } else {
+                String piece = move.substring(0);
+                if (piece == "P") {
+                    // check for Pawn special moves....
+                    if ("PEL".equals(move.substring(0, 2))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-7;
+                        other = to-8;
+                        theBoard[to] = 'P';
+                        theBoard[from] = '*';
+                        theBoard[other] = '*';
+                    } else if ("PER".equals(move.substring(0, 2))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-9;
+                        other = to-8;
+                        theBoard[to] = 'P';
+                        theBoard[from] = '*';
+                        theBoard[other] = '*';
+                    } else if ("u".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-8;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else if ("r".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-9;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else if ("l".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-7;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else {
+                        from = Integer.parseInt(move.substring(1, 2));
+                        to = Integer.parseInt(move.substring(3, 4));
+                        theBoard[to] = piece.charAt(0);
+                        theBoard[from] = '*';
+                    }
+                } else if (piece == "K") {
+                    from = Integer.parseInt(move.substring(1, 2));
+                    to = Integer.parseInt(move.substring(3, 4));
+                    theBoard[to] = piece.charAt(0);
+                    theBoard[from] = '*';
+                    whiteKing = to;
+                    wKingNeverMove = false;
+                } else {
+                    from = Integer.parseInt(move.substring(1, 2));
+                    to = Integer.parseInt(move.substring(3, 4));
+                    theBoard[to] = piece.charAt(0);
+                    theBoard[from] = '*';
+                    if (from == 00) {wQRNeverMove = false;}
+                    if (from == 07) {wKRNeverMove = false;}
+                }}
+        } // End white's turn.
+        else { // Black moves.....
+            if (move.length() < 6 || move.charAt(0) == '-') {
+                Log.i("WJH", "Checkmate or stalemate.");
+                checkStaleMate = true;
+            }
+            if ("k-0-0r,".equals(move)) {
+                theBoard[60] = '*';
+                theBoard[63] = '*';
+                theBoard[62] = 'k';
+                theBoard[61] = 'r';
+            } else if ("k0-0-0,".equals(move)) {
+                theBoard[60] = '*';
+                theBoard[56] = '*';
+                theBoard[58] = 'k';
+                theBoard[59] = 'r';
+                theBoard[57] = '*';
+            } else {
+                String piece = move.substring(0);
+                if (piece == "p") {
+                    // check for Pawn special moves....
+                    if ("pel".equals(move.substring(0, 2))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-7;
+                        other = to-8;
+                        theBoard[to] = 'p';
+                        theBoard[from] = '*';
+                        theBoard[other] = '*';
+                    } else if ("per".equals(move.substring(0, 2))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-9;
+                        other = to-8;
+                        theBoard[to] = 'p';
+                        theBoard[from] = '*';
+                        theBoard[other] = '*';
+                    } else if ("u".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-8;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else if ("r".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-9;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else if ("l".equals(move.substring(1))) {
+                        to = Integer.parseInt(move.substring(3, 4));
+                        from = to-7;
+                        theBoard[to] = promote.charAt(0);
+                        theBoard[from] = '*';
+                    } else {
+                        from = Integer.parseInt(move.substring(1, 2));
+                        to = Integer.parseInt(move.substring(3, 4));
+                        theBoard[to] = piece.charAt(0);
+                        theBoard[from] = '*';
+                    }
+                } else if (piece == "k") {
+                    from = Integer.parseInt(move.substring(1, 2));
+                    to = Integer.parseInt(move.substring(3, 4));
+                    theBoard[to] = piece.charAt(0);
+                    theBoard[from] = '*';
+                    whiteKing = to;
+                    bKingNeverMove = false;
+                } else {
+                    from = Integer.parseInt(move.substring(1, 2));
+                    to = Integer.parseInt(move.substring(3, 4));
+                    theBoard[to] = piece.charAt(0);
+                    theBoard[from] = '*';
+                    if (from == 56) {bQRNeverMove = false;}
+                    if (from == 63) {bKRNeverMove = false;}
+                }}
+        } // end black moves.
+    } // End makeMove
     public static String allMoves() {
         String list = "";
         if (whiteTurn){
