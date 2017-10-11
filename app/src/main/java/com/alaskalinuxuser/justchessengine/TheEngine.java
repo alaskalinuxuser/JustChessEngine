@@ -39,6 +39,8 @@ public class TheEngine {
         theBoard = new char[]{'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
             '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
             '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
+        whiteKing=4;
+        blackKing=60;
     return true;
     } // End New game.
 
@@ -595,6 +597,7 @@ public class TheEngine {
             k = theseMoves.get(l);
             moveSquare = String.valueOf(theBoard[k]);
             theBoard[k] = 'k';
+            blackKing = k;
             theBoard[i] = moveSquare.charAt(0);
             if (isKingSafe()) {
                 String F = String.valueOf(i);
@@ -608,6 +611,7 @@ public class TheEngine {
                 list = list + "k" + F + T + moveSquare.charAt(0) + ",";
             }
             theBoard[k] = moveSquare.charAt(0);
+            blackKing = i;
             theBoard[i] = 'k';
         }
         return list;
@@ -1215,7 +1219,6 @@ public class TheEngine {
         if (g > 0) {
             if (theBoard[i-1] == '*' || Character.isLowerCase(theBoard[i-1])) {
                 theseMoves.add(i-1);}}
-
         // Need castle moves //
 
         if (wKingNeverMove && isKingSafe()) {
@@ -1226,8 +1229,7 @@ public class TheEngine {
                     if (isKingSafe()) {
                         list = list + "K-0-0R,";
                     } else { whiteKing = 4; }
-                } else { whiteKing = 4; }
-            }
+                } else { whiteKing = 4; }}
             if (wQRNeverMove && theBoard[1] == '*' && theBoard[2] == '*' && theBoard[3] == '*') {
                 whiteKing = 3;
                 if (isKingSafe()) {
@@ -1235,9 +1237,7 @@ public class TheEngine {
                     if (isKingSafe()) {
                         list = list + "K0-0-0,";
                     } else { whiteKing = 4; }
-                } else { whiteKing = 4; }
-            }
-        }
+                } else { whiteKing = 4; }}}
 
         // Castle moves //
 
@@ -1246,6 +1246,7 @@ public class TheEngine {
             k = theseMoves.get(l);
             moveSquare = String.valueOf(theBoard[k]);
             theBoard[k] = 'K';
+            whiteKing = k;
             theBoard[i] = moveSquare.charAt(0);
             if (isKingSafe()) {
                 String F = String.valueOf(i);
@@ -1259,6 +1260,7 @@ public class TheEngine {
                 list = list + "K" + F + T + moveSquare.charAt(0) + ",";
             }
             theBoard[k] = moveSquare.charAt(0);
+            whiteKing = i;
             theBoard[i] = 'K';
         }
         return list;
@@ -1367,14 +1369,331 @@ public class TheEngine {
 
     public static boolean isKingSafe() {
 
+        // For checking if the king is safe.
+        int i;
         if (whiteTurn){
+            i = whiteKing;
+            int g = i%8;
+            int h = i/8;
+            boolean notI=true;
+            // Bishop or Queen
+            int k;
+            if (h < 7) {
+                // Up diagonal moves.
+                if (g < 7) {
+                    k = i + 9;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k/8 < 7 && k%8 < 7) {
+                            k = k + 9;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='b'||theBoard[k]=='q') {
+                        return false;} // When there is an enemy.
+                    }
+                notI = true;
+                if (g > 0) {
+                    k = i + 7;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 > 0 && k/8 < 7) {
+                            k = k + 7;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='b'||theBoard[k]=='q') {
+                        return false;} // When there is an enemy.
+                }}
 
+            if (h > 0) {
+                // down diagonal moves.
+                notI = true;
+                if (g > 0) {
+                    k = i - 9;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 > 0 && k/8 > 0) {
+                            k = k - 9;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='b'||theBoard[k]=='q') {
+                        return false;} // When there is an enemy.
+                }
+                notI = true;
+                if (g < 7) {
+                    k = i - 7;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 < 7 && k/8 > 0) {
+                            k = k - 7;
+                        } else { notI = false;}} // While it's empty.
+                    if (theBoard[k]=='b'||theBoard[k]=='q') {
+                        return false;} // When there is an enemy.
+                }}
+            // Rook or Queen
+            // Up moves
+            notI = true;
+            int j = 1;
+            int vert = 8;
+            k = i;
+            if (i < 56) {
+                k = i + (vert * j);
+            }
+            while (theBoard[k] == '*' && notI) {
+                vert += 8;
+                if (k < 56) {
+                    k = i + (vert * j);
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='r'||theBoard[k]=='q') {
+                return false;} // When there is an enemy..
+
+            // Down moves
+            notI = true;
+            j = -1;
+            vert = 8;
+            k = i;
+            if (i > 7) {
+                k = i + (vert * j);
+            }
+            while (theBoard[k] == '*' && notI) {
+                vert += 8;
+                if (k >7) {
+                    k = i + (vert * j);
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='r'||theBoard[k]=='q') {
+                return false;} // When there is an enemy..
+
+            // Right side....
+            notI = true;
+            int rj = 1;
+            int rk = i;
+            if (g < 7) {
+                rk = i + rj;
+            }
+            while (theBoard[rk] == '*' && notI) {
+                rj++;
+                if (rk%8 < 7) {
+                    rk = i + rj;
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='r'||theBoard[k]=='q') {
+                return false;} // When there is an enemy..
+
+            // Left side....
+            notI=true;
+            rj = 1;
+            rk = i;
+            if (g > 0) {
+                rk = i - rj;
+            }
+            while (theBoard[rk] == '*' && notI) {
+                rj++;
+                if (rk%8 > 0) {
+                    rk = i - rj;
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='r'||theBoard[k]=='q') {
+                return false;} // When there is an enemy..
+            // Knight
+            if (h < 7 ) {
+                if (g > 1 && theBoard[i+6]=='n') {
+                    return false;}
+                if (g < 6 && theBoard[i+10]=='n') {
+                    return false;}}
+            if (h < 6 ) {
+                if (g > 0 && theBoard[i+15]=='n') {
+                    return false;}
+                if (g < 7 && theBoard[i+17]=='n') {
+                    return false;}}
+            if (h > 0 ) {
+                if (g < 6 && theBoard[i-6]=='n') {
+                    return false;}
+                if (g > 1 && theBoard[i-10]=='n') {
+                    return false;}}
+            if (h > 1 ) {
+                if (g < 7 && theBoard[i-15]=='n') {
+                    return false;}
+                if (g > 0 && theBoard[i-17]=='n') {
+                    return false;}}
+            // King check // Don't move next to another king! // Also includes pawns.
+            if (h < 7 ) {
+                if (theBoard[i+8]=='k') {
+                    return false;}
+                if (g > 0) {
+                    if (theBoard[i+7]=='k') {
+                        return false;}}
+                if (g < 7) {
+                    if (theBoard[i+9]=='k') {
+                        return false;}}}
+            if (h > 0 ) {
+                if (theBoard[i-8]=='k') {
+                    return false;}
+                if (g > 0) {
+                    if (theBoard[i-9]=='k') {
+                        return false;}}
+                if (g < 7) {
+                    if (theBoard[i-7]=='k') {
+                        return false;}}}
+            if (g > 0) {
+                if (theBoard[i-1]=='k' || theBoard[i+7]=='p') {
+                    return false;}}
+            if (g < 7) {
+                if (theBoard[i+1]=='k' || theBoard[i+9]=='p') {
+                    return false;}}
+            // End white king is safe.
         } else {
+            i = blackKing;
+            int g = i%8;
+            int h = i/8;
+            boolean notI=true;
+            // Bishop or Queen
+            int k;
+            if (h < 7) {
+                // Up diagonal moves.
+                if (g < 7) {
+                    k = i + 9;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k/8 < 7 && k%8 < 7) {
+                            k = k + 9;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='B'||theBoard[k]=='Q') {
+                        return false;} // When there is an enemy.
+                }
+                notI = true;
+                if (g > 0) {
+                    k = i + 7;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 > 0 && k/8 < 7) {
+                            k = k + 7;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='B'||theBoard[k]=='Q') {
+                        return false;} // When there is an enemy.
+                }}
 
+            if (h > 0) {
+                // down diagonal moves.
+                notI = true;
+                if (g > 0) {
+                    k = i - 9;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 > 0 && k/8 > 0) {
+                            k = k - 9;
+                        } else {notI = false;}} // While it's empty.
+                    if (theBoard[k]=='B'||theBoard[k]=='Q') {
+                        return false;} // When there is an enemy.
+                }
+                notI = true;
+                if (g < 7) {
+                    k = i - 7;
+                    while (theBoard[k] == '*' && notI) {
+                        if (k%8 < 7 && k/8 > 0) {
+                            k = k - 7;
+                        } else { notI = false;}} // While it's empty.
+                    if (theBoard[k]=='B'||theBoard[k]=='Q') {
+                        return false;} // When there is an enemy.
+                }}
+            // Rook or Queen
+            // Up moves
+            notI = true;
+            int j = 1;
+            int vert = 8;
+            k = i;
+            if (i < 56) {
+                k = i + (vert * j);
+            }
+            while (theBoard[k] == '*' && notI) {
+                vert += 8;
+                if (k < 56) {
+                    k = i + (vert * j);
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='R'||theBoard[k]=='Q') {
+                return false;} // When there is an enemy..
+
+            // Down moves
+            notI = true;
+            j = -1;
+            vert = 8;
+            k = i;
+            if (i > 7) {
+                k = i + (vert * j);
+            }
+            while (theBoard[k] == '*' && notI) {
+                vert += 8;
+                if (k >7) {
+                    k = i + (vert * j);
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='R'||theBoard[k]=='Q') {
+                return false;} // When there is an enemy..
+
+            // Right side....
+            notI = true;
+            int rj = 1;
+            int rk = i;
+            if (g < 7) {
+                rk = i + rj;
+            }
+            while (theBoard[rk] == '*' && notI) {
+                rj++;
+                if (rk%8 < 7) {
+                    rk = i + rj;
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='R'||theBoard[k]=='Q') {
+                return false;} // When there is an enemy..
+
+            // Left side....
+            notI=true;
+            rj = 1;
+            rk = i;
+            if (g > 0) {
+                rk = i - rj;
+            }
+            while (theBoard[rk] == '*' && notI) {
+                rj++;
+                if (rk%8 > 0) {
+                    rk = i - rj;
+                } else {notI = false;}} // While it's empty.
+            if (theBoard[k]=='R'||theBoard[k]=='Q') {
+                return false;} // When there is an enemy..
+            // Knight
+            if (h < 7 ) {
+                if (g > 1 && theBoard[i+6]=='N') {
+                    return false;}
+                if (g < 6 && theBoard[i+10]=='N') {
+                    return false;}}
+            if (h < 6 ) {
+                if (g > 0 && theBoard[i+15]=='N') {
+                    return false;}
+                if (g < 7 && theBoard[i+17]=='N') {
+                    return false;}}
+            if (h > 0 ) {
+                if (g < 6 && theBoard[i-6]=='N') {
+                    return false;}
+                if (g > 1 && theBoard[i-10]=='N') {
+                    return false;}}
+            if (h > 1 ) {
+                if (g < 7 && theBoard[i-15]=='N') {
+                    return false;}
+                if (g > 0 && theBoard[i-17]=='N') {
+                    return false;}}
+            // King check // Don't move next to another king!
+            if (h < 7 ) {
+                if (theBoard[i+8]=='K') {
+                    return false;}
+                if (g > 0) {
+                    if (theBoard[i+7]=='K') {
+                        return false;}}
+                if (g < 7) {
+                    if (theBoard[i+9]=='K') {
+                        return false;}}}
+            if (h > 0 ) {
+                if (theBoard[i-8]=='K') {
+                    return false;}
+                if (g > 0) {
+                    if (theBoard[i-9]=='K') {
+                        return false;}}
+                if (g < 7) {
+                    if (theBoard[i-7]=='K') {
+                        return false;}}}
+            if (g > 0) {
+                if (theBoard[i-1]=='K' || theBoard[i-9]=='P') {
+                    return false;}}
+            if (g < 7) {
+                if (theBoard[i+1]=='K' || theBoard[i-7]=='P') {
+                    return false;}}
+            // End black king is safe.
         }
-
+        // Nothing returned false, so we know the king is safe.
         return true;
-
     } // End is king safe?
 
 } // End The engine.
