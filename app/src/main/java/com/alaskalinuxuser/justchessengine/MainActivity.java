@@ -28,9 +28,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
+import static com.alaskalinuxuser.justchessengine.TheEngine.engineStrength;
 import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
-import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
@@ -107,16 +106,8 @@ public class MainActivity extends AppCompatActivity {
         //Start a new game.
         newGame();
 
-        // Display the board in the logs....
-        String logBoard="";
-        for(int i = 0 ; i < 64; i++) {
-            logBoard = logBoard + theBoard[i];
-        }
-
         // Visually Draw the board....
         drawBoardPieces();
-
-        allMoves();
 
     }// End on create.
 
@@ -141,4 +132,47 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     } // End on options selected menu.
+
+    public void buttonNextMove (View view) {
+
+        nextMoveB.setText("Thinking...");
+
+        /*
+         * This next two lines could be used in place of getNextMove()
+         * to aleviate the "application may be doing too much work on its main thread." error.
+         * However, if you have this in place, and a phone is too slow, dropping or suspending a thread,
+         * it may not work anymore.
+         */
+        //Executor executor = Executors.newSingleThreadExecutor();
+        //executor.execute(new Runnable() { public void run() { getNextMove(); } });
+        //getNextMove();
+
+    } // End next move buton.
+
+    public void moveablePiece (View view) {
+        Log.i("WJH", "clicked sqaure.");
+    } // End clicked piece.
+
+    public void plyAdjustPlus(View view) {
+
+        engineStrength++;
+        pN.setText(String.valueOf(engineStrength));
+
+    } // End ply plus.
+
+    public void plyAdjustMinus(View view) {
+
+        engineStrength--;
+        pN.setText(String.valueOf(engineStrength));
+
+    } // end ply minus.
+
+    public void resetGame(View view) {
+        // Call for a new game and redraw the board.
+        newGame();
+        pN.setText(String.valueOf(engineStrength));
+        drawBoardPieces();
+        nextMoveB.setText("Move");
+        mCtv.setText(moveOptions);
+    } // End reset game.
 } // End Main Activity.

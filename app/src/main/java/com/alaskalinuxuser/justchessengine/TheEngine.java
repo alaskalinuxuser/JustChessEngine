@@ -24,7 +24,7 @@ public class TheEngine {
 
     static boolean wKingNeverMove, wKRNeverMove,wQRNeverMove,
             bKingNeverMove,bKRNeverMove,bQRNeverMove, whiteTurn;
-    static int whiteKing, blackKing;
+    static int whiteKing, blackKing, engineStrength;
     static String promoteToW = "Q", getPromoteToB = "q", lastMove = "xxxxxx";
 
     static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
@@ -195,6 +195,7 @@ public class TheEngine {
                 }}
         } // end black moves.
     } // End makeMove
+    
     public static String allMoves() {
         String list = "";
         if (whiteTurn){
