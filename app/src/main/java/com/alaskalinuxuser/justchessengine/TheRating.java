@@ -15,6 +15,24 @@ package com.alaskalinuxuser.justchessengine;
 *   limitations under the License.
 */
 
+import static com.alaskalinuxuser.justchessengine.TheEngine.isKingSafe;
+
 public class TheRating {
 
-}
+    public static int rating(int list, int depth) {
+        int counter=0;
+        counter+=rateMoveablitly(list, depth);
+        return -(counter+depth*50);
+    } // End rating
+
+    public static int rateMoveablitly(int listLength, int depth) {
+        int counter=0;
+        counter+=listLength;//5 pointer per valid move
+        if (listLength==0) {//current side is in checkmate or stalemate
+            if (!isKingSafe()) {//if checkmate
+                counter+=-200000*depth;
+            } else {//if stalemate
+                counter+=-150000*depth; }}
+        return 0;} // Rate moveability....
+
+}// End the rating.

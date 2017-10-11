@@ -51,6 +51,36 @@ public class TheEngine {
     return true;
     } // End New game.
 
+    public static String alphaBeta(int depth, int beta, int alpha, String move, int player) {
+        //return in the form of 1234b##########
+        String list=allMoves();
+        if (depth==0 || list.length()==0) {return move+(TheRating.rating(list.length(), depth)*(player*2-1));}
+        list=sortMoves(list);
+        player=1-player;//either 1 or 0
+        for (int i=0;i<list.length();i+=7) {
+            // Debugging only // Log.i("WJH", list);
+            makeMove(list.substring(i,i+5));
+            String returnString=alphaBeta(depth-1, beta, alpha, list.substring(i,i+7), player);
+            int value=Integer.valueOf(returnString.substring(7));
+            undoMove(list.substring(i,i+7));
+            if (player==0) {
+                if (value<=beta) {beta=value; if (depth==engineStrength) {move=returnString.substring(0,5);}}
+            } else {
+                if (value>alpha) {alpha=value; if (depth==engineStrength) {move=returnString.substring(0,5);}}
+            }
+            if (alpha>=beta) {
+                if (player==0) {return move+beta;} else {return move+alpha;}
+            }
+        }
+        if (player==0) {
+            // Debugging only //Log.i("WJH", move+beta);
+            return move+beta;
+        } else {
+            // Debugging only //Log.i("WJH", move+alpha);
+            return move+alpha;
+        }
+    } // End alphabeta algorithm.
+
     public static String sortMoves(String list) {
         int[] score=new int [list.length()/7];
         for (int i=0;i<list.length();i+=7) {
