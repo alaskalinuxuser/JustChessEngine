@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
             startTime = System.currentTimeMillis();
             // Try this.
             try {
-                moveOptions=allMoves();
                 callForMove();
                 /* for (int i=0;i<64;i++) {// Debuging purposes only....
                     Log.i ("WJH", String.valueOf(theBoard[i]));
@@ -165,10 +164,10 @@ public class MainActivity extends AppCompatActivity {
         }}// End asyncronous task of finding a move....
 
     public void getNextMove() {
-
-        // Call the class to download the page.
+        // Call the class to make a move...
         thinkMove task = new thinkMove();
         String result = null;
+        moveOptions=allMoves();
         try {
             // execute, or go on and do that task.
             result = task.execute("done").get();

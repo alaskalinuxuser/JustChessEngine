@@ -16,6 +16,7 @@ package com.alaskalinuxuser.justchessengine;
 */
 
 import static com.alaskalinuxuser.justchessengine.TheEngine.isKingSafe;
+import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 
 public class TheRating {
 
@@ -34,5 +35,46 @@ public class TheRating {
             } else {//if stalemate
                 counter+=-150000*depth; }}
         return 0;} // Rate moveability....
+
+    public static int rateMaterialWhite(){
+        int materialScore = 0;
+        for (int i = 0; i < 64; i++) {
+            switch (theBoard[i]) {
+                case 'N': materialScore = materialScore + 30;break;
+                case 'R': materialScore = materialScore + 50;break;
+                case 'B': materialScore = materialScore + 35;break;
+                case 'Q': materialScore = materialScore + 90;break;
+                case 'K': materialScore = materialScore + 901;break;
+                case 'P': materialScore = materialScore + 10;break;
+                case 'n': materialScore = materialScore - 30;break;
+                case 'r': materialScore = materialScore - 50;break;
+                case 'b': materialScore = materialScore - 35;break;
+                case 'q': materialScore = materialScore - 90;break;
+                case 'k': materialScore = materialScore - 900;break;
+                case 'p': materialScore = materialScore - 10;break;
+            }
+        }
+        return materialScore;
+    }
+    public static int rateMaterialBlack(){
+        int materialScore = 0;
+        for (int i = 0; i < 64; i++) {
+            switch (theBoard[i]) {
+                case 'N': materialScore = materialScore - 30;break;
+                case 'R': materialScore = materialScore - 50;break;
+                case 'B': materialScore = materialScore - 35;break;
+                case 'Q': materialScore = materialScore - 90;break;
+                case 'K': materialScore = materialScore - 900;break;
+                case 'P': materialScore = materialScore - 10;break;
+                case 'n': materialScore = materialScore + 30;break;
+                case 'r': materialScore = materialScore + 50;break;
+                case 'b': materialScore = materialScore + 35;break;
+                case 'q': materialScore = materialScore + 90;break;
+                case 'k': materialScore = materialScore + 901;break;
+                case 'p': materialScore = materialScore + 10;break;
+            }
+        }
+        return materialScore;
+    }
 
 }// End the rating.
