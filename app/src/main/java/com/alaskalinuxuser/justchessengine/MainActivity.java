@@ -15,6 +15,7 @@ package com.alaskalinuxuser.justchessengine;
 *   limitations under the License.
 */
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,8 +29,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Arrays;
+
+import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
+import static com.alaskalinuxuser.justchessengine.TheEngine.callForMove;
 import static com.alaskalinuxuser.justchessengine.TheEngine.engineStrength;
 import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
+import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     static Button nextMoveB,pB,mB;
     static TextView pN, tVms, mCtv;
     static String moveOptions;
-    static long moveTime;
+    static long moveTime, startTime, stopTime;
     static int searchDepth;
 
     @Override
@@ -133,6 +139,52 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     } // End on options selected menu.
 
+    // Our new class to tell the computer to think about a move....
+    public class thinkMove extends AsyncTask<String, Void, String> {
+
+        // Do this in the background.
+        @Override
+        protected String doInBackground(String... urls) {
+
+            startTime = System.currentTimeMillis();
+            // Try this.
+            try {
+                moveOptions=allMoves();
+                callForMove();
+                /* for (int i=0;i<64;i++) {// Debuging purposes only....
+                    Log.i ("WJH", String.valueOf(theBoard[i]));
+                } */ // Debuging purposes only....
+                // Have an exception clause so you don't crash.
+            } catch (Exception e) {
+                e.printStackTrace();
+                stopTime = System.currentTimeMillis();
+                return "Exception";
+            }
+            stopTime = System.currentTimeMillis();
+            return "Pass";
+        }}// End asyncronous task of finding a move....
+
+    public void getNextMove() {
+
+        // Call the class to download the page.
+        thinkMove task = new thinkMove();
+        String result = null;
+        try {
+            // execute, or go on and do that task.
+            result = task.execute("done").get();
+            // A fail clause.
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (result=="Pass"){
+            // draw the board.
+            drawBoardPieces();
+            // rename the move button.
+            nextMoveB.setText("Move");
+            tVms.setText(String.valueOf(stopTime-startTime) + " ms");
+            mCtv.setText(moveOptions);
+        }} // End get next move.
+
     public void buttonNextMove (View view) {
 
         nextMoveB.setText("Thinking...");
@@ -145,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
          */
         //Executor executor = Executors.newSingleThreadExecutor();
         //executor.execute(new Runnable() { public void run() { getNextMove(); } });
-        //getNextMove();
+        getNextMove();
 
     } // End next move buton.
 

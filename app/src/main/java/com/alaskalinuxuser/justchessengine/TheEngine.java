@@ -19,6 +19,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TheEngine {
 
@@ -51,54 +52,34 @@ public class TheEngine {
     return true;
     } // End New game.
 
-    public static String alphaBeta(int depth, int beta, int alpha, String move, int player) {
-        //return in the form of 1234b##########
-        String list=allMoves();
-        if (depth==0 || list.length()==0) {return move+(TheRating.rating(list.length(), depth)*(player*2-1));}
-        list=sortMoves(list);
-        player=1-player;//either 1 or 0
-        for (int i=0;i<list.length();i+=7) {
-            // Debugging only // Log.i("WJH", list);
-            makeMove(list.substring(i,i+5));
-            String returnString=alphaBeta(depth-1, beta, alpha, list.substring(i,i+7), player);
-            int value=Integer.valueOf(returnString.substring(7));
-            undoMove(list.substring(i,i+7));
-            if (player==0) {
-                if (value<=beta) {beta=value; if (depth==engineStrength) {move=returnString.substring(0,5);}}
-            } else {
-                if (value>alpha) {alpha=value; if (depth==engineStrength) {move=returnString.substring(0,5);}}
-            }
-            if (alpha>=beta) {
-                if (player==0) {return move+beta;} else {return move+alpha;}
-            }
-        }
-        if (player==0) {
-            // Debugging only //Log.i("WJH", move+beta);
-            return move+beta;
+    public static void callForMove() {
+
+        if (engineStrength < 1) {
+            // Random weak moves.
+            String theMoves = allMoves();
+            int movesSize = theMoves.length()/7;
+            Random generator = new Random();
+            int choiceMove = generator.nextInt(movesSize);
+            String randomMove = theMoves.substring(choiceMove*7, (choiceMove*7)+7);
+            makeMove(randomMove);
+            // Debugging only //Log.i("WJH", randomMove);
+
+        } else if (engineStrength == 1) {
+            // Min/max weak move.
         } else {
-            // Debugging only //Log.i("WJH", move+alpha);
-            return move+alpha;
+            // Pruned move.
         }
+        // Trade sides after making a move....
+        if (whiteTurn) {whiteTurn = false;} else {whiteTurn = true;}
+
+    }
+
+    public static String alphaBeta(int depth, int beta, int alpha, String move, int player) {
+        return "incomplete";
     } // End alphabeta algorithm.
 
     public static String sortMoves(String list) {
-        int[] score=new int [list.length()/7];
-        for (int i=0;i<list.length();i+=7) {
-            makeMove(list.substring(i, i+7));
-            //score[i/7]=-TheRating.rating(-1, 0);
-            undoMove(list.substring(i, i+7));
-        }
-        String newListA="", newListB=list;
-        for (int i=0;i<Math.min(6, list.length()/7);i++) {//first few moves only
-            int max=-1000000, maxLocation=0;
-            for (int j=0;j<list.length()/7;j++) {
-                if (score[j]>max) {max=score[j]; maxLocation=j;}
-            }
-            score[maxLocation]=-1000000;
-            newListA+=list.substring(maxLocation*7,maxLocation*7+7);
-            newListB=newListB.replace(list.substring(maxLocation*7,maxLocation*7+7), "");
-        }
-        return newListA+newListB;
+        return "incomplete";
     } // End sort moves.
 
     public static void makeMove(String move) {
@@ -109,6 +90,7 @@ public class TheEngine {
         boolean checkStaleMate = false;
         int to,from,other;
         String promote = move.substring(2);
+        char piece = move.charAt(0);
         if (whiteTurn) { // White's turn moves....
             if (move.length() < 6 || move.charAt(0) == '-') {
                 Log.i("WJH", "Checkmate or stalemate.");
@@ -128,55 +110,55 @@ public class TheEngine {
                 theBoard[0] = '*';
                 wKingNeverMove++;
             } else {
-                String piece = move.substring(0);
-                if (piece == "P") {
+
+                if (piece == 'P') {
                     // check for Pawn special moves....
-                    if ("PEL".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    if ("PEL".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = 'P';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
-                    } else if ("PER".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    } else if ("PER".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = 'P';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
                     } else if ("u".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else if ("r".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else if ("l".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else {
-                        from = Integer.parseInt(move.substring(1, 2));
-                        to = Integer.parseInt(move.substring(3, 4));
-                        theBoard[to] = piece.charAt(0);
+                        from = Integer.parseInt(move.substring(1, 3));
+                        to = Integer.parseInt(move.substring(3, 5));
+                        theBoard[to] = piece;
                         theBoard[from] = '*';
                     }
-                } else if (piece == "K") {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
-                    theBoard[to] = piece.charAt(0);
+                } else if (piece == 'k') {
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
+                    theBoard[to] = piece;
                     theBoard[from] = '*';
                     whiteKing = to;
                     wKingNeverMove++;
                 } else {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
-                    theBoard[to] = piece.charAt(0);
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
+                    theBoard[to] = piece;
                     theBoard[from] = '*';
                     if (from == 00) {wQRNeverMove++;}
                     if (from == 07) {wKRNeverMove++;}
@@ -199,55 +181,54 @@ public class TheEngine {
                 theBoard[59] = 'r';
                 theBoard[57] = '*';
             } else {
-                String piece = move.substring(0);
-                if (piece == "p") {
+                if (piece == 'p') {
                     // check for Pawn special moves....
-                    if ("pel".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    if ("pel".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = 'p';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
-                    } else if ("per".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    } else if ("per".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = 'p';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
                     } else if ("u".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else if ("r".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else if ("l".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         theBoard[to] = promote.charAt(0);
                         theBoard[from] = '*';
                     } else {
-                        from = Integer.parseInt(move.substring(1, 2));
-                        to = Integer.parseInt(move.substring(3, 4));
-                        theBoard[to] = piece.charAt(0);
+                        from = Integer.parseInt(move.substring(1, 3));
+                        to = Integer.parseInt(move.substring(3, 5));
+                        theBoard[to] = piece;
                         theBoard[from] = '*';
                     }
-                } else if (piece == "k") {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
-                    theBoard[to] = piece.charAt(0);
+                } else if (piece == 'k') {
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
+                    theBoard[to] = piece;
                     theBoard[from] = '*';
                     whiteKing = to;
                     bKingNeverMove++;
                 } else {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
-                    theBoard[to] = piece.charAt(0);
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
+                    theBoard[to] = piece;
                     theBoard[from] = '*';
                     if (from == 56) {bQRNeverMove++;}
                     if (from == 63) {bKRNeverMove++;}
@@ -286,51 +267,51 @@ public class TheEngine {
                 String piece = move.substring(0);
                 if (piece == "P") {
                     // check for Pawn special moves....
-                    if ("PEL".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    if ("PEL".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                         theBoard[other] = 'p';
-                    } else if ("PER".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    } else if ("PER".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                         theBoard[other] = 'p';
                     } else if ("u".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                     } else if ("r".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                     } else if ("l".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                     } else {
-                        from = Integer.parseInt(move.substring(1, 2));
-                        to = Integer.parseInt(move.substring(3, 4));
+                        from = Integer.parseInt(move.substring(1, 3));
+                        to = Integer.parseInt(move.substring(3, 5));
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                     }
                 } else if (piece == "K") {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
                     theBoard[to] = take;
                     theBoard[from] = 'K';
                     whiteKing = from;
                     wKingNeverMove--;
                 } else {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
                     theBoard[to] = take;
                     theBoard[from] = piece.charAt(0);
                     if (to == 00) {wQRNeverMove--;}
@@ -359,51 +340,51 @@ public class TheEngine {
                 String piece = move.substring(0);
                 if (piece == "p") {
                     // check for Pawn special moves....
-                    if ("pel".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    if ("pel".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                         theBoard[other] = 'P';
-                    } else if ("per".equals(move.substring(0, 2))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                    } else if ("per".equals(move.substring(0, 3))) {
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                         theBoard[other] = 'P';
                     } else if ("u".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
                         theBoard[to] = '*';
                         theBoard[from] = 'p';
                     } else if ("r".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                     } else if ("l".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 4));
+                        to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                     } else {
-                        from = Integer.parseInt(move.substring(1, 2));
-                        to = Integer.parseInt(move.substring(3, 4));
+                        from = Integer.parseInt(move.substring(1, 3));
+                        to = Integer.parseInt(move.substring(3, 5));
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                     }
                 } else if (piece == "k") {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
                     theBoard[to] = take;
                     theBoard[from] = 'k';
                     whiteKing = to;
                     bKingNeverMove--;
                 } else {
-                    from = Integer.parseInt(move.substring(1, 2));
-                    to = Integer.parseInt(move.substring(3, 4));
+                    from = Integer.parseInt(move.substring(1, 3));
+                    to = Integer.parseInt(move.substring(3, 5));
                     theBoard[to] = take;
                     theBoard[from] = piece.charAt(0);
                     if (to == 56) {bQRNeverMove--;}
@@ -435,7 +416,7 @@ public class TheEngine {
                     case 'p': list+=pawnMovesB(i);break;
                 }
             }}
-        Log.i("WJH", list);
+        //Debugging only // Log.i("WJH", list);
         return list;
         /*
          * The list is in this format 123456,
