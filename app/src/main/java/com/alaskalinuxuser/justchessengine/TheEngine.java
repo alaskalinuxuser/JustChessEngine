@@ -46,8 +46,8 @@ public class TheEngine {
         bKingNeverMove=0;bKRNeverMove=0;bQRNeverMove=0;
         whiteTurn=true;
         theBoard = new char[]{'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
-            '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
-            '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
+                '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
+                '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
         whiteKing=4;
         blackKing=60;
     return true;
@@ -57,71 +57,147 @@ public class TheEngine {
 
         if (engineStrength < 1) {
             // Random weak moves.
-            String theMoves = allMoves();
+            String theMoves = allMoves(whiteTurn);
             int movesSize = theMoves.length()/7;
             Random generator = new Random();
             int choiceMove = generator.nextInt(movesSize);
             String randomMove = theMoves.substring(choiceMove*7, (choiceMove*7)+7);
-            makeMove(randomMove);
-            // Debugging only //Log.i("WJH", randomMove);
-
+            makeMove(randomMove, whiteTurn);
         } else if (engineStrength == 1) {
             // Weak move based solely on  current material.
-            String theMoves = allMoves();
-            int movesSize = theMoves.length()/7;
-            String bestMove = "";
-            //use any negative large number
-            int bestValue = -9999;
-            // Debugging only // Log.i("WJH", " the moves: " + theMoves);
-            for (int i = 0; i < movesSize; i++) {
-                String newGameMove = theMoves.substring(i*7, (i*7)+7);
-                makeMove(newGameMove);
-                int boardValue;
-                if (whiteTurn) {
-                    boardValue = TheRating.rateMaterialWhite();
-                }else {
-                    boardValue = TheRating.rateMaterialBlack();
-                }
-                undoMove(newGameMove);
-                if (boardValue > bestValue) {
-                    bestValue = boardValue;
-                    bestMove = newGameMove;
-                }
-            }
-            makeMove(bestMove);
-            // Debugging only //
-            /*Log.i("WJH", "wk="+ String.valueOf(whiteKing) + " bk="+ String.valueOf(blackKing) +
-            " board=" + Arrays.toString(theBoard)); */
+            String bestMove = makeRatedMove(whiteTurn);
+            makeMove(bestMove, whiteTurn);
         } else {
-            // Engine strength is greater than 1, so make a better move.
+            // Engine strength is 2 or higher, so make a min/max move.
+            String bestMove = "";
+            if (whiteTurn) {bestMove = minimaxRoot(engineStrength, true);}
+            else {bestMove = minimaxRoot(engineStrength, false);}
+            makeMove(bestMove, whiteTurn);
         }
         // Trade sides after making a move....
         if (whiteTurn) {whiteTurn = false;} else {whiteTurn = true;}
+    } // End call for move....
 
-    }
+    public static String makeRatedMove(boolean wturn) {
+        String theMoves = allMoves(wturn);
+        int movesSize = theMoves.length()/7;
+        String bestMove = "";
+        int bestValue= 0;
+        if (wturn){bestValue=-9999;} else {bestValue=9999;}
+            for (int i = 0; i < movesSize; i++) {
+                String newGameMove = theMoves.substring(i*7, (i*7)+7);
+                makeMove(newGameMove, wturn);
+                int boardValue = rating(movesSize,wturn);
+                undoMove(newGameMove, wturn);
+                if (wturn && boardValue > bestValue) {
+                    bestValue = boardValue;
+                    bestMove = newGameMove;
+                } else if (!wturn && boardValue < bestValue) {
+                    bestValue = boardValue;
+                    bestMove = newGameMove;}}
+        return bestMove;
+    } // End rated move
 
-    public static String alphaBeta(int depth, int beta, int alpha, String move, int player) {
-        return "incomplete";
-    } // End alphabeta algorithm.
+    public static String minimaxRoot(int depth, boolean wturn) {
+        String bestMove = "";
+        int bestValue;
+        if (wturn) {bestValue = -9999;} else {bestValue = 9999;}
+        String theMoves = allMoves(wturn);
+        int theseMovesSize = theMoves.length()/7;
+        int boardValue;
 
-    public static String sortMoves(String list) {
-        return "incomplete";
-    } // End sort moves.
+        for (int i = 0; i < theseMovesSize; i++) {
+            String newGameMove = theMoves.substring(i*7, (i*7)+7);
+            makeMove(newGameMove, wturn);
+            String alternateMove = makeRatedMove(!wturn);
+            makeMove(alternateMove, !wturn);
+            boardValue = minimax(bestValue,theseMovesSize,depth-1,wturn);
+            undoMove(alternateMove, !wturn);
+            undoMove(newGameMove, wturn);
+            if (boardValue > bestValue) {
+                bestValue = boardValue;
+                bestMove = newGameMove;
+            } else if (!wturn && boardValue < bestValue) {
+                bestValue = boardValue;
+                bestMove = newGameMove;}}
+        return bestMove;} // End min/max.
 
-    public static void makeMove(String move) {
+    public static int minimax(int bestValue,int movesSize, int depth, boolean wturn) {
+        if (depth < 1) {
+            // Debugging only // Log.i("WJH", "rating = " + String.valueOf(rating(movesSize,wturn)));
+            // Debugging only // Log.i("WJH", "board=" + Arrays.toString(theBoard));
+            return rating(movesSize,wturn);
+        } else if (depth > 0) {
+            String theMoves = allMoves(wturn);
+            int theseMovesSize = theMoves.length() / 7;
+
+            for (int i = 0; i < theseMovesSize; i++) {
+                String newGameMove = theMoves.substring(i * 7, (i * 7) + 7);
+                makeMove(newGameMove, wturn);
+                String alternateMove = makeRatedMove(!wturn);
+                makeMove(alternateMove, !wturn);
+                minimax(bestValue, movesSize, depth - 1, !wturn);
+                undoMove(alternateMove, !wturn);
+                undoMove(newGameMove, wturn);
+            }
+        }return rating(movesSize,wturn);} // End min/max.
+
+    public static int rating(int list, boolean wTurn) {
+        int counter=0;
+        if (wTurn){
+        counter+=rateMoveablitly(list);} else {
+         counter-=rateMoveablitly(list);
+        }
+        counter+=rateMaterial();
+        return counter;
+    } // End rating
+
+    public static int rateMoveablitly(int listLength) {
+        int counter=0;
+        counter+=listLength;//5 pointer per valid move
+        if (listLength==0) {//current side is in checkmate or stalemate
+            if (!isKingSafe()) {//if checkmate
+                counter+=-200000;
+            } else {//if stalemate
+                counter+=-150000; }} else {
+            return counter;
+        }return 0;} // Rate moveability....
+
+    public static int rateMaterial(){
+        int materialScore = 0;
+        for (int i = 0; i < 64; i++) {
+            switch (theBoard[i]) {
+                case 'N': materialScore = materialScore + 30;break;
+                case 'R': materialScore = materialScore + 50;break;
+                case 'B': materialScore = materialScore + 35;break;
+                case 'Q': materialScore = materialScore + 90;break;
+                case 'K': materialScore = materialScore + 900;break;
+                case 'P': materialScore = materialScore + 10;break;
+                case 'n': materialScore = materialScore - 30;break;
+                case 'r': materialScore = materialScore - 50;break;
+                case 'b': materialScore = materialScore - 35;break;
+                case 'q': materialScore = materialScore - 90;break;
+                case 'k': materialScore = materialScore - 900;break;
+                case 'p': materialScore = materialScore - 10;break;
+            }
+        }
+        return materialScore;
+    } // End rateMaterial.
+
+    public static void makeMove(String move, boolean wturn) {
         /*
          * In theory, if there are no moves, then you are in checkmate or stalemate....
          */
+        // Debugging only // Log.i("WJH", "Move="+move);
         lastMove = move;
         boolean checkStaleMate = false;
         int to,from,other;
-        String promote;
-        char piece;
+        char piece, promote;
         if (move.length() < 6 || move.charAt(0) == '-') {
             Log.i("WJH", "Checkmate or stalemate. " + move);
             checkStaleMate = true;
-        } else if (whiteTurn) { // White's turn moves....
-            promote = move.substring(2);
+        } else if (wturn) { // White's turn moves....
+            promote = move.charAt(2);
             piece = move.charAt(0);
             if ("K-0-0R,".equals(move)) {
                 theBoard[7] = '*';
@@ -137,37 +213,37 @@ public class TheEngine {
                 theBoard[0] = '*';
                 wKingNeverMove++;
             } else {
-
-                if (piece == 'P') {
+                if (move.charAt(0) == 'P') {
                     // check for Pawn special moves....
-                    if ("PEL".equals(move.substring(0, 3))) {
+                    if (move.charAt(1)=='E') {
+                    if (move.charAt(2)=='L') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = 'P';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
-                    } else if ("PER".equals(move.substring(0, 3))) {
+                    } else if (move.charAt(2)=='R') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = 'P';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
-                    } else if ("u".equals(move.substring(1))) {
+                    }} else if (move.charAt(1)=='u') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
-                        theBoard[to] = promote.charAt(0);
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
-                    } else if ("r".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='r') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
-                        theBoard[to] = promote.charAt(0);
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
-                    } else if ("l".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
-                        theBoard[to] = promote.charAt(0);
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
                     } else {
                         from = Integer.parseInt(move.substring(1, 3));
@@ -192,7 +268,7 @@ public class TheEngine {
                 }}
         } // End white's turn.
         else { // Black moves.....
-            promote = move.substring(2);
+            promote = move.charAt(2);
             piece = move.charAt(0);
             if ("k-0-0r,".equals(move)) {
                 theBoard[60] = '*';
@@ -208,34 +284,35 @@ public class TheEngine {
             } else {
                 if (piece == 'p') {
                     // check for Pawn special moves....
-                    if ("pel".equals(move.substring(0, 3))) {
+                    if (move.charAt(1)=='e') {
+                        if (move.charAt(2)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-7;
-                        other = to-8;
+                        from = to + 7;
+                        other = to + 8;
                         theBoard[to] = 'p';
                         theBoard[from] = '*';
                         theBoard[other] = '*';
-                    } else if ("per".equals(move.substring(0, 3))) {
+                    } else if (move.charAt(2)=='r') {
+                            to = Integer.parseInt(move.substring(3, 5));
+                            from = to + 9;
+                            other = to + 8;
+                            theBoard[to] = 'p';
+                            theBoard[from] = '*';
+                            theBoard[other] = '*';}
+                    } else if (move.charAt(1)=='u') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-9;
-                        other = to-8;
-                        theBoard[to] = 'p';
+                        from = to+8;
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
-                        theBoard[other] = '*';
-                    } else if ("u".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='r') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-8;
-                        theBoard[to] = promote.charAt(0);
+                        from = to+7;
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
-                    } else if ("r".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-9;
-                        theBoard[to] = promote.charAt(0);
-                        theBoard[from] = '*';
-                    } else if ("l".equals(move.substring(1))) {
-                        to = Integer.parseInt(move.substring(3, 5));
-                        from = to-7;
-                        theBoard[to] = promote.charAt(0);
+                        from = to+9;
+                        theBoard[to] = promote;
                         theBoard[from] = '*';
                     } else {
                         from = Integer.parseInt(move.substring(1, 3));
@@ -261,18 +338,17 @@ public class TheEngine {
         } // end black moves.
     } // End makeMove
 
-    public static void undoMove(String move) {
+    public static void undoMove(String move, boolean wturn) {
         /*
          * In theory, if there are no moves, then you are in checkmate or stalemate....
          */
-        //Log.i("WJH", move);
         boolean checkStaleMate = false;
         int to,from,other;
         char piece, take;
         if (move.length() < 6 || move.charAt(0) == '-') {
             Log.i("WJH", "Checkmate or stalemate. " + move);
             checkStaleMate = true;
-        } else if (whiteTurn) { // undo White's turn moves....
+        } else if (wturn) { // undo White's turn moves....
             piece = move.charAt(0);
             take = move.charAt(5);
             if ("K-0-0R,".equals(move)) {
@@ -291,31 +367,32 @@ public class TheEngine {
             } else {
                 if (piece == 'P') {
                     // check for Pawn special moves....
-                    if ("PEL".equals(move.substring(0, 3))) {
+                    if (move.charAt(1)=='E') {
+                        if (move.charAt(2)=='L') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
                         theBoard[other] = 'p';
-                    } else if ("PER".equals(move.substring(0, 3))) {
+                    } else if (move.charAt(2)=='R') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
-                        theBoard[other] = 'p';
-                    } else if ("u".equals(move.substring(1))) {
+                        theBoard[other] = 'p';}
+                    } else if (move.charAt(1)=='u') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
-                    } else if ("r".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='r') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         theBoard[to] = take;
                         theBoard[from] = 'P';
-                    } else if ("l".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         theBoard[to] = take;
@@ -346,13 +423,13 @@ public class TheEngine {
             piece = move.charAt(0);
             take = move.charAt(5);
             if ("k-0-0r,".equals(move)) {
-                theBoard[60] = 'K';
-                theBoard[63] = 'R';
+                theBoard[60] = 'k';
+                theBoard[63] = 'r';
                 theBoard[61] = '*';
                 theBoard[62] = '*';
                 bKingNeverMove--;
             } else if ("k0-0-0,".equals(move)) {
-                theBoard[60] = 'K';
+                theBoard[60] = 'k';
                 theBoard[56] = 'r';
                 theBoard[58] = '*';
                 theBoard[59] = '*';
@@ -361,33 +438,34 @@ public class TheEngine {
             } else {
                 if (piece == 'p') {
                     // check for Pawn special moves....
-                    if ("pel".equals(move.substring(0, 3))) {
+                    if (move.charAt(1)=='e') {
+                        if (move.charAt(2)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-7;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                         theBoard[other] = 'P';
-                    } else if ("per".equals(move.substring(0, 3))) {
+                    } else if (move.charAt(2)=='r') {
                         to = Integer.parseInt(move.substring(3, 5));
                         from = to-9;
                         other = to-8;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
-                        theBoard[other] = 'P';
-                    } else if ("u".equals(move.substring(1))) {
+                        theBoard[other] = 'P';}
+                    } else if (move.charAt(1)=='u') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-8;
+                        from = to+8;
                         theBoard[to] = '*';
                         theBoard[from] = 'p';
-                    } else if ("r".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='r') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-9;
+                        from = to+7;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
-                    } else if ("l".equals(move.substring(1))) {
+                    } else if (move.charAt(1)=='l') {
                         to = Integer.parseInt(move.substring(3, 5));
-                        from = to-7;
+                        from = to+9;
                         theBoard[to] = take;
                         theBoard[from] = 'p';
                     } else {
@@ -414,9 +492,9 @@ public class TheEngine {
         } // end undo black moves.
     } // End undo moves
 
-    public static String allMoves() {
+    public static String allMoves(boolean wTurn) {
         String list = "";
-        if (whiteTurn){
+        if (wTurn){
             for (int i = 0; i < 64; i++) {
                 switch (theBoard[i]) {
                     case 'N': list+=nightMoves(i);break;
@@ -1037,7 +1115,7 @@ public class TheEngine {
                 theBoard[k] = 'p';
                 theBoard[i] = '*';
                 if (isKingSafe()) {
-                    list = list + "p" + "u" + getPromoteToB + k + moveSquare.charAt(0) + ",";
+                    list = list + "p" + "u" + getPromoteToB + "0"+ k + moveSquare.charAt(0) + ",";
                 }
                 theBoard[k] = moveSquare.charAt(0);
                 theBoard[i] = 'p';
@@ -1048,7 +1126,7 @@ public class TheEngine {
                 theBoard[k] = 'p';
                 theBoard[i] = '*';
                 if (isKingSafe()) {
-                    list = list + "p" + "l" + getPromoteToB + k + moveSquare.charAt(0) + ",";
+                    list = list + "p" + "l" + getPromoteToB + "0"+ k + moveSquare.charAt(0) + ",";
                 }
                 theBoard[k] = moveSquare.charAt(0);
                 theBoard[i] = 'p';
@@ -1059,7 +1137,7 @@ public class TheEngine {
                 theBoard[k] = 'p';
                 theBoard[i] = '*';
                 if (isKingSafe()) {
-                    list = list + "p" + "r" + getPromoteToB + k + moveSquare.charAt(0) + ",";
+                    list = list + "p" + "r" + getPromoteToB + "0"+ k + moveSquare.charAt(0) + ",";
                 }
                 theBoard[k] = moveSquare.charAt(0);
                 theBoard[i] = 'p';

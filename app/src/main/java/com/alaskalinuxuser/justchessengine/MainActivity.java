@@ -36,6 +36,7 @@ import static com.alaskalinuxuser.justchessengine.TheEngine.callForMove;
 import static com.alaskalinuxuser.justchessengine.TheEngine.engineStrength;
 import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
 import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
+import static com.alaskalinuxuser.justchessengine.TheEngine.whiteTurn;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
@@ -167,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
         // Call the class to make a move...
         thinkMove task = new thinkMove();
         String result = null;
-        moveOptions=allMoves();
         try {
             // execute, or go on and do that task.
             result = task.execute("done").get();
@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     public void buttonNextMove (View view) {
 
         nextMoveB.setText("Thinking...");
+        moveOptions=allMoves(whiteTurn);
 
         /*
          * This next two lines could be used in place of getNextMove()
