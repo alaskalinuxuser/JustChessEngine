@@ -33,9 +33,7 @@ import java.util.Arrays;
 
 import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
 import static com.alaskalinuxuser.justchessengine.TheEngine.callForMove;
-import static com.alaskalinuxuser.justchessengine.TheEngine.engineStrength;
 import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
-import static com.alaskalinuxuser.justchessengine.TheEngine.theBoard;
 import static com.alaskalinuxuser.justchessengine.TheEngine.whiteTurn;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
@@ -57,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
             x16,x17,x18,x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29,x30,x31,
             x32,x33,x34,x35,x36,x37,x38,x39,x40,x41,x42,x43,x44,x45,x46,x47,
             x48,x49,x50,x51,x52,x53,x54,x55,x56,x57,x58,x59,x60,x61,x62,x63};
+
+    int engineStrength;
 
     static Button nextMoveB,pB,mB;
     static TextView pN, tVms, mCtv;
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             startTime = System.currentTimeMillis();
             // Try this.
             try {
-                callForMove();
+                callForMove(engineStrength);
                 /* for (int i=0;i<64;i++) {// Debuging purposes only....
                     Log.i ("WJH", String.valueOf(theBoard[i]));
                 } */ // Debuging purposes only....
@@ -182,7 +182,11 @@ public class MainActivity extends AppCompatActivity {
             nextMoveB.setText("Move");
             tVms.setText(String.valueOf(stopTime-startTime) + " ms");
             mCtv.setText(moveOptions);
-        }} // End get next move.
+        } else {
+            engineStrength=2;
+            getNextMove();
+        }
+    } // End get next move.
 
     public void buttonNextMove (View view) {
 
