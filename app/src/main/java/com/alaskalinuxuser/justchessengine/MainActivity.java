@@ -31,10 +31,7 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 
-import static com.alaskalinuxuser.justchessengine.TheEngine.allMoves;
-import static com.alaskalinuxuser.justchessengine.TheEngine.callForMove;
-import static com.alaskalinuxuser.justchessengine.TheEngine.newGame;
-import static com.alaskalinuxuser.justchessengine.TheEngine.whiteTurn;
+import static com.alaskalinuxuser.justchessengine.TheEngine.terminal;
 import static com.alaskalinuxuser.justchessengine.TheUserInterface.drawBoardPieces;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,11 +54,12 @@ public class MainActivity extends AppCompatActivity {
             x48,x49,x50,x51,x52,x53,x54,x55,x56,x57,x58,x59,x60,x61,x62,x63};
 
     int engineStrength;
+    boolean wTurn;
 
     static Button nextMoveB,pB,mB;
     static TextView pN, tVms, mCtv;
     static String moveOptions;
-    static long moveTime, startTime, stopTime;
+    static long startTime, stopTime;
     static int searchDepth;
 
     @Override
@@ -111,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         } // checker board.
 
         //Start a new game.
-        newGame();
+        terminal("newGame");
 
         // Visually Draw the board....
         drawBoardPieces();
@@ -150,10 +148,7 @@ public class MainActivity extends AppCompatActivity {
             startTime = System.currentTimeMillis();
             // Try this.
             try {
-                callForMove(engineStrength);
-                /* for (int i=0;i<64;i++) {// Debuging purposes only....
-                    Log.i ("WJH", String.valueOf(theBoard[i]));
-                } */ // Debuging purposes only....
+                terminal("makeMove,"+String.valueOf(engineStrength));
                 // Have an exception clause so you don't crash.
             } catch (Exception e) {
                 e.printStackTrace();
@@ -176,6 +171,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if (result=="Pass"){
+            if (wTurn) {
+                wTurn = false;
+            } else {
+                wTurn = true;
+            }
             // draw the board.
             drawBoardPieces();
             // rename the move button.
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     public void buttonNextMove (View view) {
 
         nextMoveB.setText("Thinking...");
-        moveOptions=allMoves(whiteTurn);
+        moveOptions= terminal("availMoves,"+String.valueOf(wTurn));
 
         /*
          * This next two lines could be used in place of getNextMove()
@@ -202,6 +202,50 @@ public class MainActivity extends AppCompatActivity {
         //Executor executor = Executors.newSingleThreadExecutor();
         //executor.execute(new Runnable() { public void run() { getNextMove(); } });
         getNextMove();
+
+        // To test responses // String query = "";
+        // query = terminal("whoseTurn"); // To find out whose turn the computer thinks it is.
+        // query = terminal("setTurn,white"); // To set the computer's turn to white. (use black for black).
+        // query = terminal("suggestMove,black"); // To ask for a suggested rated move for black, use white for white.
+        // query = terminal("getBoard"); // to get the logical board.
+
+        /*
+         * To set the engine board to equal your board. It is just a string of 64 characters.
+         *
+         * Uppercase are white, lowercase are black. Asterisk is blank.
+         * RNBQKBNRPPPPPPPP********************************pppppppprnbqkbnr
+         *
+         * char[] myBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
+         *       '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
+         *       '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
+         * String stringBoard="";
+         * for (int i = 0; i < 64; i++) {stringBoard = stringBoard + String.valueOf(myBoard[i]);}
+         * query = terminal("setBoard,"+ stringBoard);
+         *
+         */
+
+        // query = terminal("pieceMoves,N,13"); // If a knight was at square 13, on the current board, what moves could be made?
+        // This is useful for clicking a piece to see what options it has.
+        // K = king, Q = queen, R = rook, B = bishop, N = knight, P = pawn.
+        // Use lowercase for black, uppercase for white.
+        // Note that this should only call for moves where a real piece exists, or the logical board may get messed up.
+
+        // query = terminal("undoMove,P1220*");
+        // Undo this move. Should be a real move.
+        // Piece moved - square from - square to - taken
+
+        // query = terminal("undoLastMove"); // Undo the last move done. Only works once, not sequential.
+
+        // query = terminal("moveNow");
+        // to force making a move. E.g., if the strength is so high it takes too long.
+        // You can follow this with undoLastMove and setTurn as well to go back.
+        // It is not perfect, but will choose the best move it has so far.
+        // Usually takes 10 ms from the time it was told to stop.
+
+        //query = terminal("myMove,p5438*");
+        // To input your move. It will then flip white/black turn.
+
+        // To test responses. // Log.i("WJH", query);
 
     } // End next move buton.
 
@@ -225,7 +269,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetGame(View view) {
         // Call for a new game and redraw the board.
-        newGame();
+        terminal("newGame");
+        wTurn = true;
         pN.setText(String.valueOf(engineStrength));
         drawBoardPieces();
         nextMoveB.setText("Move");

@@ -26,8 +26,8 @@ public class TheEngine {
 
     static int wKingNeverMove, wKRNeverMove,wQRNeverMove,
             bKingNeverMove,bKRNeverMove,bQRNeverMove;
-    static boolean whiteTurn;
-    static int whiteKing, blackKing;
+    static boolean whiteTurn, stopNow;
+    static int whiteKing, blackKing, plyTurn;
     static String promoteToW = "Q", getPromoteToB = "q", lastMove = "xxxxxx";
 
     static char[] theBoard = {'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
@@ -101,7 +101,77 @@ public class TheEngine {
 
     public static String terminal (String s) {
         String term = "";
-        // To be used later....
+        // Debugging only // Log.i("WJH", s);
+        if (s.length()<1){
+            // Too short! Do nothing!
+        } else if (s.equals("newGame")) {
+            newGame();
+        } else if (s.startsWith("makeMove")) {
+            String part[] = s.split(",");
+            int strength = Integer.parseInt(part[1]);
+            callForMove(strength);
+        } else if (s.startsWith("availMoves")) {
+            String part[] = s.split(",");
+            boolean turn;
+            if (part[1].equals("true")) {turn = true;} else {turn = false;}
+            term = allMoves(turn);
+        } else if (s.startsWith("whoseTurn")) {
+            if (whiteTurn) {term = "white";} else {term = "black";}
+        } else if (s.startsWith("setTurn")) {
+            String part[] = s.split(",");
+            if (part[1].equals("white")) {
+                whiteTurn = true;
+                term = "set white";
+            } else {whiteTurn = false;
+                term = "set black";}
+        } else if (s.startsWith("suggestMove")) {
+            String part[] = s.split(",");
+            if (part[1].equals("white")) {
+                term = makeRatedMove(true);
+            } else {term = makeRatedMove(false);}
+        } else if (s.startsWith("getBoard")) {
+            term = Arrays.toString(theBoard);
+        } else if (s.startsWith("setBoard")) {
+            String part[] = s.split(",");
+            for (int i = 0; i < 64; i++) {
+                theBoard[i] = Character.valueOf(part[1].charAt(i));
+            }
+            term = Arrays.toString(theBoard);
+        } else if (s.startsWith("pieceMoves")) {
+            String part[] = s.split(",");
+            int i = Integer.parseInt(part[2]);
+            switch (part[1]) {
+                case "N": term += nightMoves(i); break;
+                case "R": term += rookMoves(i); break;
+                case "B": term += bishopMoves(i); break;
+                case "Q": term += queenMoves(i); break;
+                case "K": term += kingMoves(i); break;
+                case "P": term += pawnMoves(i); break;
+                case "n": term += nightMovesB(i); break;
+                case "r": term += rookMovesB(i); break;
+                case "b": term += bishopMovesB(i); break;
+                case "q": term += queenMovesB(i); break;
+                case "k": term += kingMovesB(i); break;
+                case "p": term += pawnMovesB(i); break;
+            }
+        } else if (s.startsWith("undoMove")) {
+            String part[] = s.split(",");
+            undoMove(part[1]);
+            term = "undone";
+        } else if (s.startsWith("undoLastMove")) {
+            undoMove(lastMove);
+            term = "undid last move";
+        } else if (s.startsWith("moveNow")) {
+            stopNow = true;
+            term = "movedNow";
+        }  else if (s.startsWith("myMove")) {
+            String part[] = s.split(",");
+            makeMove(part[1]);
+            term = "moved";
+            if (whiteTurn) {whiteTurn = false;} else {whiteTurn = true;}
+        }
+
+        // Return the term output.
         return term;
     }
 
@@ -110,6 +180,7 @@ public class TheEngine {
         wKingNeverMove=0;wKRNeverMove=0;wQRNeverMove=0;
         bKingNeverMove=0;bKRNeverMove=0;bQRNeverMove=0;
         whiteTurn=true;
+        plyTurn = 0;
         theBoard = new char[]{'R','N','B','Q','K','B','N','R','P','P','P','P','P','P','P','P','*','*','*','*',
                 '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
                 '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
@@ -128,16 +199,20 @@ public class TheEngine {
             int choiceMove = generator.nextInt(movesSize);
             String randomMove = theMoves.substring(choiceMove*7, (choiceMove*7)+7);
             makeMove(randomMove);
+            plyTurn++;
         } else if (engineStrength == 1) {
             // Weak move based solely on  current material.
             String bestMove = makeRatedMove(whiteTurn);
             makeMove(bestMove);
+            plyTurn++;
         } else {
             // Engine strength is 2 or higher, so make a min/max move.
             String bestMove = "";
+            stopNow = false;
             if (whiteTurn) {bestMove = minimaxRoot(engineStrength, true);}
             else {bestMove = minimaxRoot(engineStrength, false);}
             makeMove(bestMove);
+            plyTurn++;
         }
         // Trade sides after making a move....
         if (whiteTurn) {whiteTurn = false;} else {whiteTurn = true;}
@@ -189,6 +264,8 @@ public class TheEngine {
         return bestMove;} // End min/max.
 
     public static int minimax(int bestValue,int movesSize, int depth, boolean wturn) {
+
+        if (stopNow) {
         if (depth < 1) {
             // Debugging only // Log.i("WJH", "rating = " + String.valueOf(rating(movesSize,wturn)));
             // Debugging only // Log.i("WJH", "board=" + Arrays.toString(theBoard));
@@ -206,7 +283,7 @@ public class TheEngine {
                 undoMove(alternateMove);
                 undoMove(newGameMove);
             }
-        }return rating(movesSize,wturn);} // End min/max.
+        }}return rating(movesSize,wturn);} // End min/max.
 
     public static int rating(int list, boolean wTurn) {
         int counter=0;
