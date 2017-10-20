@@ -34,16 +34,17 @@ public class TheEngine {
             '*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
             '*','*','*','*','*','p','p','p','p','p','p','p','p','r','n','b','q','k','b','n','r'};
 
-    static int pawnBoardW[]=//attribute to http://chessprogramming.wikispaces.com/Simplified+evaluation+function
-            { 0,  0,  0,  0,  0,  0,  0,  0,
+    //Modified from http://chessprogramming.wikispaces.com/Simplified+evaluation+function
+    static int pawnBoard[]=
+            { 500, 500, 500, 500, 500, 500, 500, 500,
                     50, 50, 50, 50, 50, 50, 50, 50,
-                    10, 10, 20, 30, 30, 20, 10, 10,
-                    5,  5, 10, 25, 25, 10,  5,  5,
-                    0,  0,  0, 40, 30,  0,  0,  0,
-                    5, -5,-10, 30, 40,-10, -5,  5,
-                    5, 10, 10,-20,-20, 10, 10,  5,
+                    0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0, 60, 50,  0,  0,  0,
+                    10,  0, 20, 50, 60, 20,  0,  10,
+                    5, 10, 10,-40,-40, 10, 10,  5,
                     0,  0,  0,  0,  0,  0,  0,  0};
-    static int rookBoardW[]=
+    static int rookBoard[]=
             { 0,  0,  0,  0,  0,  0,  0,  0,
                     5, 10, 10, 10, 10, 10, 10,  5,
                     -5,  0,  0,  0,  0,  0,  0, -5,
@@ -51,26 +52,26 @@ public class TheEngine {
                     -5,  0,  0,  0,  0,  0,  0, -5,
                     -5,  0,  0,  0,  0,  0,  0, -5,
                     -5,  0,  0,  0,  0,  0,  0, -5,
-                    0,  0,  0,  5,  5,  0,  0,  0};
-    static int knightBoardW[]=
+                    1,  0,  0,  0,  0,  0,  0,  1,};
+    static int knightBoard[]=
             {-50,-40,-30,-30,-30,-30,-40,-50,
                     -40,-20,  0,  0,  0,  0,-20,-40,
                     -30,  0, 10, 15, 15, 10,  0,-30,
-                    -30,  5, 15, 20, 20, 15,  5,-30,
-                    -30,  0, 15, 20, 20, 15,  0,-30,
+                    -30,  5, 15,  0,  0, 15,  5,-30,
+                    -30,  0, 15,  0,  0, 15,  0,-30,
                     -30,  5, 10, 15, 15, 10,  5,-30,
                     -40,-20,  0,  5,  5,  0,-20,-40,
-                    -50,-40,-30,-30,-30,-30,-40,-50};
-    static int bishopBoardW[]=
+                    -50,-30,-30,-30,-30,-30,-30,-50};
+    static int bishopBoard[]=
             {-20,-10,-10,-10,-10,-10,-10,-20,
                     -10,  0,  0,  0,  0,  0,  0,-10,
                     -10,  0,  5, 10, 10,  5,  0,-10,
-                    -10,  5,  5, 10, 10,  5,  5,-10,
+                    -20,  5,  5, 10, 10,  5,  5,-20,
                     -10,  0, 10, 10, 10, 10,  0,-10,
                     -10, 10, 10, 10, 10, 10, 10,-10,
                     -10,  5,  0,  0,  0,  0,  5,-10,
                     -20,-10,-10,-10,-10,-10,-10,-20};
-    static int queenBoardW[]=
+    static int queenBoard[]=
             {-20,-10,-10, -5, -5,-10,-10,-20,
                     -10,  0,  0,  0,  0,  0,  0,-10,
                     -10,  0,  5,  5,  5,  5,  0,-10,
@@ -79,6 +80,24 @@ public class TheEngine {
                     -10,  5,  5,  5,  5,  5,  0,-10,
                     -10,  0,  5,  0,  0,  0,  0,-10,
                     -20,-10,-10, -5, -5,-10,-10,-20};
+    static int kingBoardW[]=
+            { 0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  110,  -40,  0,  -40,  100,  0,  0,};
+    static int kingBoardB[]=
+            { 0,  0,  0,  0,  0,  0,  0,  0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  0,  0,  0,  0,  0, 0,
+                    0,  0,  110,  -40,  0,  -40,  100,  0,};
 
     public static String terminal (String s) {
         String term = "";
@@ -134,6 +153,7 @@ public class TheEngine {
             String newGameMove = theMoves.substring(i*7, (i*7)+7);
             makeMove(newGameMove);
             int boardValue = rating(movesSize,wturn);
+            // Debugging only //Log.i("WJH", "Made move, rating = "+newGameMove + String.valueOf(boardValue));// Debugging only //
             undoMove(newGameMove);
             if (wturn && boardValue > bestValue) {
                 bestValue = boardValue;
@@ -160,7 +180,7 @@ public class TheEngine {
             boardValue = minimax(bestValue,theseMovesSize,depth-1,wturn);
             undoMove(alternateMove);
             undoMove(newGameMove);
-            if (boardValue > bestValue) {
+            if (wturn && boardValue > bestValue) {
                 bestValue = boardValue;
                 bestMove = newGameMove;
             } else if (!wturn && boardValue < bestValue) {
@@ -192,12 +212,13 @@ public class TheEngine {
         int counter=0;
         if (wTurn){
             counter+=rateMoveablitly(list);
-            counter+=ratePositional();
+            counter+=ratePositional(wTurn);
         } else {
             counter-=rateMoveablitly(list);
-            counter+=ratePositional();
+            counter-=ratePositional(wTurn);
         }
         counter+=rateMaterial();
+        // Debugging only //Log.i("WJH", "Total Counter="+String.valueOf(counter));
         return counter;
     } // End rating
 
@@ -209,35 +230,47 @@ public class TheEngine {
                 counter+=-200000;
             } else {//if stalemate
                 counter+=-150000; }} else {
+            // Debugging only //Log.i("WJH", "movability Counter="+String.valueOf(counter));
             return counter;
-        }return 0;} // Rate moveability....
+        }return counter;} // Rate moveability....
 
-    public static int ratePositional() {
+    public static int ratePositional(boolean wturn) {
         int counter=0;
-        for (int i=0;i<64;i++) {
-            switch (theBoard[i]) {
-                case 'P': counter+=pawnBoardW[i];
-                    break;
-                case 'R': counter+=rookBoardW[i];
-                    break;
-                case 'N': counter+=knightBoardW[i];
-                    break;
-                case 'B': counter+=bishopBoardW[i];
-                    break;
-                case 'Q': counter+=queenBoardW[i];
-                    break;
-                case 'p': counter-=pawnBoardW[63-i];
-                    break;
-                case 'r': counter-=rookBoardW[63-i];
-                    break;
-                case 'n': counter-=knightBoardW[63-i];
-                    break;
-                case 'b': counter-=bishopBoardW[63-i];
-                    break;
-                case 'q': counter-=queenBoardW[63-i];
-                    break;
+        if (wturn) {
+            for (int i=0;i<64;i++) {
+                switch (theBoard[i]) {
+                    case 'P': counter+=pawnBoard[63-i];
+                        break;
+                    case 'R': counter+=rookBoard[63-i];
+                        break;
+                    case 'N': counter+=knightBoard[63-i];
+                        break;
+                    case 'B': counter+=bishopBoard[63-i];
+                        break;
+                    case 'Q': counter+=queenBoard[63-i];
+                        break;
+                    case 'K': counter+=kingBoardW[63-i];
+                        break;
+                }
+            } } else {
+            for (int i=0;i<64;i++) {
+                switch (theBoard[i]) {
+                    case 'p': counter+=pawnBoard[i];
+                        break;
+                    case 'r': counter+=rookBoard[i];
+                        break;
+                    case 'n': counter+=knightBoard[i];
+                        break;
+                    case 'b': counter+=bishopBoard[i];
+                        break;
+                    case 'q': counter+=queenBoard[i];
+                        break;
+                    case 'k': counter+=kingBoardB[i];
+                        break;
+                }
             }
         }
+        // Debugging only //Log.i("WJH", "Positional Counter="+String.valueOf(counter));
         return counter;
     }// End rate positional
 
@@ -259,6 +292,7 @@ public class TheEngine {
                 case 'p': materialScore = materialScore - 10;break;
             }
         }
+        // Debugging only //Log.i("WJH", "Material Counter="+String.valueOf(materialScore));
         return materialScore;
     } // End rateMaterial.
 
@@ -1398,32 +1432,6 @@ public class TheEngine {
             if (theBoard[i-1] == '*' || Character.isUpperCase(theBoard[i-1])) {
                 theseMoves.add(i-1);}}
 
-        // Need castle moves //
-
-        if (bKingNeverMove == 0 && isKingSafe()) {
-            if (bKRNeverMove == 0 && theBoard[61] == '*' && theBoard[62] == '*' && theBoard[63] == 'r') {
-                blackKing = 61;
-                if (isKingSafe()) {
-                    blackKing = 62;
-                    if (isKingSafe()) {
-                        list = list + "K-0-0R,";
-                    } else { blackKing = 60; }
-                } else { blackKing = 60; }
-            }
-            if (bQRNeverMove == 0 && theBoard[57] == '*' && theBoard[58] == '*' &&
-                    theBoard[59] == '*' && theBoard[56] == 'r') {
-                blackKing = 59;
-                if (isKingSafe()) {
-                    blackKing = 58;
-                    if (isKingSafe()) {
-                        list = list + "K0-0-0,";
-                    } else { blackKing = 60; }
-                } else { blackKing = 60; }
-            }
-        }
-
-        // Castle moves //
-
         int k;
         for(int l=0; l<theseMoves.size();l++) {
             k = theseMoves.get(l);
@@ -1446,6 +1454,31 @@ public class TheEngine {
             blackKing = i;
             theBoard[i] = 'k';
         }
+        // Need castle moves //
+
+        if (theBoard[60] == 'k' && isKingSafe()) {
+            if (theBoard[61] == '*' && theBoard[62] == '*' && theBoard[63] == 'r') {
+                blackKing = 61;
+                if (isKingSafe()) {
+                    blackKing = 62;
+                    if (isKingSafe()) {
+                        list = list + "k-0-0r,";
+                    } else { blackKing = 60; }
+                } else { blackKing = 60; }
+            }
+            if (theBoard[57] == '*' && theBoard[58] == '*' &&
+                    theBoard[59] == '*' && theBoard[56] == 'r') {
+                blackKing = 59;
+                if (isKingSafe()) {
+                    blackKing = 58;
+                    if (isKingSafe()) {
+                        list = list + "k0-0-0,";
+                    } else { blackKing = 60; }
+                } else { blackKing = 60; }
+            }
+        }
+
+        // Castle moves //
         return list;
     } // End Black King moves.
 
@@ -2051,28 +2084,6 @@ public class TheEngine {
         if (g > 0) {
             if (theBoard[i-1] == '*' || Character.isLowerCase(theBoard[i-1])) {
                 theseMoves.add(i-1);}}
-        // Need castle moves //
-
-        if (wKingNeverMove == 0 && isKingSafe()) {
-            if (wKRNeverMove == 0 && theBoard[7] == 'R' && theBoard[5] == '*' && theBoard[6] == '*') {
-                whiteKing = 5;
-                if (isKingSafe()) {
-                    whiteKing = 6;
-                    if (isKingSafe()) {
-                        list = list + "K-0-0R,";
-                    } else { whiteKing = 4; }
-                } else { whiteKing = 4; }}
-            if (wQRNeverMove == 0 && theBoard[0] == 'R' && theBoard[1] == '*' &&
-                    theBoard[2] == '*' && theBoard[3] == '*') {
-                whiteKing = 3;
-                if (isKingSafe()) {
-                    whiteKing = 2;
-                    if (isKingSafe()) {
-                        list = list + "K0-0-0,";
-                    } else { whiteKing = 4; }
-                } else { whiteKing = 4; }}}
-
-        // Castle moves //
 
         int k;
         for(int l=0; l<theseMoves.size();l++) {
@@ -2096,6 +2107,28 @@ public class TheEngine {
             whiteKing = i;
             theBoard[i] = 'K';
         }
+        // Need castle moves //
+
+        if (theBoard[4] == 'K' && isKingSafe()) {
+            if (theBoard[7] == 'R' && theBoard[5] == '*' && theBoard[6] == '*') {
+                whiteKing = 5;
+                if (isKingSafe()) {
+                    whiteKing = 6;
+                    if (isKingSafe()) {
+                        list = list + "K-0-0R,";
+                    } else { whiteKing = 4; }
+                } else { whiteKing = 4; }}
+            if (theBoard[0] == 'R' && theBoard[1] == '*' &&
+                    theBoard[2] == '*' && theBoard[3] == '*') {
+                whiteKing = 3;
+                if (isKingSafe()) {
+                    whiteKing = 2;
+                    if (isKingSafe()) {
+                        list = list + "K0-0-0,";
+                    } else { whiteKing = 4; }
+                } else { whiteKing = 4; }}}
+
+        // Castle moves //
         return list;
     } // End King moves.
 
